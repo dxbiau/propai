@@ -258,7 +258,19 @@ def quick_roi(
     Quick-and-dirty ROI calculation for fast filtering.
 
     Returns a simple dict — use the full ROICalculator for detailed analysis.
+
+    Returns zeros for all metrics if ``purchase_price`` or ``deposit_pct``
+    are not positive, rather than producing nonsensical or misleading numbers.
     """
+    if purchase_price <= 0 or deposit_pct <= 0:
+        return {
+            "gross_yield": 0.0,
+            "net_yield": 0.0,
+            "monthly_cash_flow": 0.0,
+            "is_positive": False,
+            "annual_net": 0.0,
+        }
+
     annual_rent = weekly_rent * 52
     gross_yield = (annual_rent / purchase_price * 100) if purchase_price > 0 else 0
 
@@ -266,10 +278,10 @@ def quick_roi(
     annual_interest = loan_amount * (interest_rate / 100)
     deposit = purchase_price * (deposit_pct / 100)
 
-    # Simple expenses estimate
-    expenses = annual_interest + (annual_rent * 0.07) + 3000 + 1500 + 2000  # Mgmt + rates + insurance + maintenance
+    # Simple expenses estimate: interest + mgmt (7%) + council rates + insurance + maintenance
+    expenses = annual_interest + (annual_rent * 0.07) + 3_000 + 1_500 + 2_000
     net_income = annual_rent - expenses
-    net_yield = (net_income / deposit * 100) if deposit > 0 else 0
+    net_yield = (net_income / deposit * 100) if deposit > 0 else 0.0
     monthly_cf = net_income / 12
 
     return {
