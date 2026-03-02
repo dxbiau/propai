@@ -48,28 +48,64 @@ logger = structlog.get_logger(__name__)
 # ---------------------------------------------------------------------------
 
 _STREET_NAMES = [
-    "High Street", "Station Road", "Church Street", "Victoria Street",
-    "Albert Road", "King Street", "Bridge Road", "Punt Road",
-    "Smith Street", "Sydney Road", "Nicholson Street", "Plenty Road",
-    "Nepean Highway", "Canterbury Road", "Bell Street", "Murray Road",
-    "Glenferrie Road", "Burke Road", "Toorak Road", "Chapel Street",
-    "Lygon Street", "Swanston Street", "Flinders Street", "Collins Street",
-    "Elizabeth Street", "Queen Street", "William Street", "La Trobe Street",
-    "Spring Street", "Exhibition Street", "Bourke Street", "Little Collins Street",
-    "Commercial Road", "Malvern Road", "Dandenong Road", "Princes Highway",
-    "Geelong Road", "Ballarat Road", "Calder Freeway", "Western Highway",
-    "Sturt Street", "Lydiard Street", "Moorabool Street", "High Street",
-    "Midland Highway", "Maroondah Highway", "Whitehorse Road",
-    "Warrigal Road", "Springvale Road", "Stud Road",
+    # Universal Australian street names
+    "High Street", "Station Road", "Church Street", "King Street",
+    "Albert Road", "Bridge Road", "Smith Street", "Park Avenue",
+    "Elizabeth Street", "Queen Street", "William Street", "George Street",
+    "Commercial Road", "Princes Highway", "Pacific Highway", "Great Western Highway",
+    "Main Street", "Railway Parade", "Victoria Road", "Boundary Road",
+    "Reserve Road", "Hillside Drive", "Riverside Drive", "Ocean Drive",
+    "Forest Road", "Cliff Road", "Bay Road", "Beach Road",
+    # NSW
+    "Parramatta Road", "Pennant Hills Road", "Windsor Road", "Richmond Road",
+    "Old Northern Road", "Mona Vale Road", "Military Road", "Pittwater Road",
+    # VIC
+    "Nepean Highway", "Canterbury Road", "Glenferrie Road", "Toorak Road",
+    "Chapel Street", "Lygon Street", "Flinders Street", "Collins Street",
+    # QLD
+    "Gympie Road", "Sandgate Road", "Lutwyche Road", "Ipswich Road",
+    "Logan Road", "Old Cleveland Road", "Cavendish Road", "Wynnum Road",
+    # SA
+    "Unley Road", "Greenhill Road", "Portrush Road", "Magill Road",
+    "Anzac Highway", "South Road", "Main North Road", "Port Road",
+    # WA
+    "Stirling Highway", "Canning Highway", "Albany Highway", "Roe Highway",
+    "Wanneroo Road", "Marmion Avenue", "West Coast Highway", "Karrinyup Road",
+    # TAS
+    "Channel Highway", "East Derwent Highway", "Brooker Highway", "Huon Road",
+    # NT
+    "Stuart Highway", "Bagot Road", "Trower Road", "McMillans Road",
+    # ACT
+    "Northbourne Avenue", "Flemington Road", "Tuggeranong Parkway", "Hindmarsh Drive",
 ]
 
 _AGENCY_NAMES = [
+    # National
+    "Ray White", "LJ Hooker", "REMAX", "First National",
+    "McGrath Estate Agents", "Belle Property", "Harcourts", "Century 21",
+    "PRD Nationwide", "Raine & Horne", "Elders Real Estate", "Professionals",
+    # NSW
+    "McGrath", "BresicWhitney", "Richardson & Wrench", "Laing+Simmons",
+    "Stone Real Estate", "Cobden & Hayson", "DiJones", "Cunninghams",
+    # VIC
     "Jellis Craig", "Marshall White", "Buxton Real Estate",
-    "Hocking Stuart", "Barry Plant", "Stockdale & Leggo",
-    "Biggin & Scott", "Nelson Alexander", "Woodards",
-    "Ray White", "LJ Hooker", "REMAX",
-    "First National", "McGrath Estate Agents", "Belle Property",
-    "RT Edgar", "Kay & Burton", "Fletchers",
+    "Hocking Stuart", "Barry Plant", "Biggin & Scott",
+    "Nelson Alexander", "Woodards", "RT Edgar", "Kay & Burton",
+    # QLD
+    "Place Estate Agents", "RE/MAX Results", "Coronis", "Harcourts Solutions",
+    "Ray White Surfers Paradise", "Kollosche", "Tom Offermann",
+    # SA
+    "Harris Real Estate", "Toop+Toop", "Harcourts Adelaide",
+    "Ouwens Casserly", "Klemich Real Estate",
+    # WA
+    "Acton", "Abel McGrath", "Realmark", "Peard Real Estate",
+    "Shellabears", "Caporn Young",
+    # TAS
+    "Harcourts Hobart", "Knight Frank Tasmania", "Petrusma Property",
+    # NT
+    "Elders Darwin", "Ray White Darwin", "Raine & Horne Darwin",
+    # ACT
+    "Independent Property Group", "Luton Properties", "Blackshaw", "Ray White Canberra",
 ]
 
 _AGENT_FIRST = [
@@ -276,7 +312,7 @@ def _generate_scout_properties(
             land=land or 0,
             rent=weekly_rent,
             postcode=postcode,
-            state=sub_data.get("state", "VIC"),
+            state=sub_data.get("state") or "NSW",
             yield_pct=round(rent_yield, 1),
             distress_text=distress_text,
             infra_text=infra_text,
@@ -295,7 +331,7 @@ def _generate_scout_properties(
             id=uuid4(),
             address=address,
             suburb=suburb_name,
-            state=sub_data.get("state", "VIC"),
+            state=sub_data.get("state") or "NSW",
             postcode=postcode,
             property_type=ptype,
             bedrooms=beds,
@@ -308,7 +344,7 @@ def _generate_scout_properties(
             asking_price=price,
             listing_status=ListingStatus.ACTIVE,
             source=source,
-            source_url=f"https://www.domain.com.au/sale/{suburb_name.lower().replace(' ', '-')}-{sub_data.get('state', 'vic').lower()}-{postcode}/",
+            source_url=f"https://www.domain.com.au/sale/{suburb_name.lower().replace(' ', '-')}-{(sub_data.get('state') or 'nsw').lower()}-{postcode}/",
             listing_text=listing_text,
             agent_name=f"{agent_first} {agent_last}",
             agent_phone=f"04{random.randint(10,99)} {random.randint(100,999)} {random.randint(100,999)}",

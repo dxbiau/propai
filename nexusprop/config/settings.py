@@ -168,7 +168,7 @@ class Settings(BaseSettings):
     # --- Australian Market Defaults ---
     default_interest_rate: float = Field(default=6.25, description="Current variable rate %")
     default_loan_lvr: float = Field(default=80.0, description="Loan-to-Value Ratio %")
-    stamp_duty_state: AustralianState = AustralianState.VIC
+    stamp_duty_state: AustralianState = AustralianState.NSW  # national default — no state bias
     council_rate_estimate_pct: float = Field(default=0.3, description="Council rate as % of value")
 
     # --- Scoring ---

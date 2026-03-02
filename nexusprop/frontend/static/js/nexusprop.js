@@ -89,13 +89,13 @@ const _TYPE_COLORS = {
 
 function makeDomainUrl(suburb, postcode, state) {
     const slug = (suburb || '').toLowerCase().replace(/\s+/g, '-');
-    const stateSlug = (state || 'vic').toLowerCase();
-    return `https://www.domain.com.au/sale/${slug}-${stateSlug}-${postcode}/`;
+    const stateSlug = (state || '').toLowerCase();
+    return `https://www.domain.com.au/sale/${slug}${stateSlug ? '-' + stateSlug : ''}-${postcode}/`;
 }
 function makeRealestateUrl(suburb, postcode, state) {
     const slug = (suburb || '').toLowerCase().replace(/\s+/g, '+');
-    const stateSlug = (state || 'vic').toLowerCase();
-    return `https://www.realestate.com.au/buy/in-${slug},+${stateSlug}+${postcode}/list-1`;
+    const stateSlug = (state || '').toLowerCase();
+    return `https://www.realestate.com.au/buy/in-${slug}${stateSlug ? ',+' + stateSlug : ''}+${postcode}/list-1`;
 }
 function propPlaceholder(type, suburb, size, imageUrl) {
     const icon = _TYPE_ICONS[(type || 'house').toLowerCase()] || '🏠';
@@ -410,14 +410,14 @@ function showDealDetail(dealId) {
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
             <div class="absolute bottom-3 left-3">
                 <div class="text-sm font-mono text-white font-bold">${(p.property_type || 'HOUSE').toUpperCase()}</div>
-                <div class="text-[10px] text-white/70">${p.suburb || ''}, ${p.state || 'VIC'} ${p.postcode || ''}</div>
+                <div class="text-[10px] text-white/70">${p.suburb || ''}${p.state ? ', ' + p.state : ''} ${p.postcode || ''}</div>
             </div>
             <button onclick="event.stopPropagation();enhancePropertyPhoto('${detailImageUrl}')" class="absolute top-2 right-2 bg-black/50 backdrop-blur-sm hover:bg-terminal-accent/80 text-white px-2 py-1 rounded text-[9px] font-mono transition" title="AI Enhance">✨ ENHANCE</button>
         </div>`
         : `<div style="background:${typeGrad};" class="rounded-lg h-32 flex items-center justify-center border border-white/10 mb-3">
         <span class="text-4xl mr-3">${typeIcon}</span>
         <div><div class="text-sm font-mono text-white">${(p.property_type || 'HOUSE').toUpperCase()}</div>
-        <div class="text-[9px] text-white/60">${p.suburb || ''}, ${p.state || 'VIC'} ${p.postcode || ''}</div></div>
+        <div class="text-[9px] text-white/60">${p.suburb || ''}${p.state ? ', ' + p.state : ''} ${p.postcode || ''}</div></div>
     </div>`;
 
     content.innerHTML = `
@@ -595,7 +595,7 @@ function showPropertyDetail(propId) {
             <span class="text-4xl mr-3">${typeIcon}</span>
             <div>
                 <div class="text-sm font-mono text-terminal-bright">${(p.property_type || 'HOUSE').toUpperCase()}</div>
-                <div class="text-[9px] text-terminal-muted">${p.suburb}, ${p.state || 'VIC'} ${p.postcode}</div>
+                <div class="text-[9px] text-terminal-muted">${p.suburb}${p.state ? ', ' + p.state : ''} ${p.postcode}</div>
             </div>
         </div>
 
@@ -1810,7 +1810,7 @@ async function parseResearchUrl() {
 async function executeResearch() {
     const url = ($('research-url') || {}).value || '';
     const suburb = ($('research-suburb') || {}).value || '';
-    const state = ($('research-state') || {}).value || 'VIC';
+    const state = ($('research-state') || {}).value || '';
     const postcode = ($('research-postcode') || {}).value || '';
     const propType = ($('research-proptype') || {}).value || 'house';
     const isPrivate = ($('research-private') || {}).checked || false;
@@ -2020,7 +2020,7 @@ function researchNearbySuburb(suburb, state, postcode) {
 
 async function executeClimateOnly() {
     const suburb = ($('research-suburb') || {}).value || '';
-    const state = ($('research-state') || {}).value || 'VIC';
+    const state = ($('research-state') || {}).value || '';
     if (!suburb) {
         showToast('Enter a suburb name first', 'error');
         return;

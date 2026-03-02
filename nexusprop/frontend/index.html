@@ -673,12 +673,13 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[10px] text-terminal-muted font-mono mb-1">SUBURB</label>
-                                <input type="text" id="research-suburb" placeholder="e.g. Footscray" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                                <input type="text" id="research-suburb" placeholder="e.g. Surry Hills, Fortitude Valley, Fremantle..." class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
                             </div>
                             <div>
                                 <label class="block text-[10px] text-terminal-muted font-mono mb-1">STATE</label>
                                 <select id="research-state" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
-                                    <option value="NSW">NSW</option><option value="VIC" selected>VIC</option><option value="QLD">QLD</option>
+                                    <option value="">All States</option>
+                                    <option value="NSW">NSW</option><option value="VIC">VIC</option><option value="QLD">QLD</option>
                                     <option value="SA">SA</option><option value="WA">WA</option><option value="TAS">TAS</option>
                                     <option value="NT">NT</option><option value="ACT">ACT</option>
                                 </select>
@@ -687,7 +688,7 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[10px] text-terminal-muted font-mono mb-1">POSTCODE</label>
-                                <input type="text" id="research-postcode" placeholder="3011" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full" maxlength="4">
+                                <input type="text" id="research-postcode" placeholder="e.g. 2010, 4000, 6000" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full" maxlength="4">
                             </div>
                             <div>
                                 <label class="block text-[10px] text-terminal-muted font-mono mb-1">PROPERTY TYPE</label>
@@ -791,7 +792,7 @@
             <div class="space-y-2">
                 <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">PURCHASE PRICE (AUD)</label><input type="number" id="roi-price" placeholder="650000" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"></div>
                 <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">WEEKLY RENT (AUD)</label><input type="number" id="roi-rent" placeholder="500" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"></div>
-                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">STATE</label><select id="roi-state" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"><option value="NSW">NSW</option><option value="VIC" selected>VIC</option><option value="QLD">QLD</option><option value="SA">SA</option><option value="WA">WA</option><option value="TAS">TAS</option><option value="NT">NT</option><option value="ACT">ACT</option></select></div>
+                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">STATE</label><select id="roi-state" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"><option value="NSW">NSW</option><option value="VIC">VIC</option><option value="QLD">QLD</option><option value="SA">SA</option><option value="WA">WA</option><option value="TAS">TAS</option><option value="NT">NT</option><option value="ACT">ACT</option></select></div>
                 <button onclick="calculateROI()" class="bg-terminal-accent text-terminal-bg w-full py-2 rounded font-mono text-xs font-bold hover:bg-terminal-accent/90 transition">CALCULATE</button>
                 <div id="roi-result" class="hidden bg-terminal-bg rounded border border-terminal-border p-3 mt-2 font-mono text-xs"></div>
             </div>

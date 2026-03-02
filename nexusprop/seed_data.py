@@ -121,14 +121,14 @@ _STATE_SLUG = {
 }
 
 
-def _make_domain_url(suburb: str, postcode: str, state: str = "VIC") -> str:
+def _make_domain_url(suburb: str, postcode: str, state: str = "NSW") -> str:
     """Build a real Domain.com.au search URL for a suburb."""
     slug = suburb.lower().replace(" ", "-")
     st = _STATE_SLUG.get(state.upper(), state.lower())
     return f"https://www.domain.com.au/sale/{slug}-{st}-{postcode}/"
 
 
-def _make_realestate_url(suburb: str, postcode: str, state: str = "VIC") -> str:
+def _make_realestate_url(suburb: str, postcode: str, state: str = "NSW") -> str:
     """Build a real realestate.com.au search URL for a suburb."""
     slug = suburb.lower().replace(" ", "+")
     st = _STATE_SLUG.get(state.upper(), state.lower())
@@ -153,7 +153,7 @@ def _inject_images(properties: list) -> None:
 
         # Fix source_url to real listing search page
         if not prop.source_url or "example.com" in (prop.source_url or ""):
-            prop.source_url = _make_domain_url(prop.suburb, prop.postcode, prop.state or "VIC")
+            prop.source_url = _make_domain_url(prop.suburb, prop.postcode, prop.state or "NSW")
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -191,7 +191,7 @@ VALUE_ADD_PLAYBOOK: dict[str, dict] = {
     "granny_flat_addition": {
         "mods": ["Detached granny flat 60m² (1BR + kitchenette + BA)",
                  "Separate utility connection", "Private entry + courtyard",
-                 "Council permit (VicSmart if compliant)"],
+                 "Council permit (state-specific approval pathway)"],
         "est_cost_range": (120_000, 180_000),
         "est_uplift_pct": (15, 25),
         "timeframe_weeks": 16,

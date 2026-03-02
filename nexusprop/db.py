@@ -1,5 +1,5 @@
 """
-SQLite Persistence Layer — Property Insights Melbourne.
+SQLite Persistence Layer — NexusProp Australia (National).
 
 Zero-config, file-based, serverless persistence using Python's built-in
 sqlite3 module.  No external DB service required.

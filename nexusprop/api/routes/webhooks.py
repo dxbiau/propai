@@ -28,7 +28,7 @@ router = APIRouter()
 
 class ScheduledRunRequest(BaseModel):
     """Trigger a scheduled full pipeline run."""
-    states: list[str] = Field(default_factory=lambda: ["NSW"])
+    states: list[str] = Field(default_factory=lambda: ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"])
     suburbs: list[str] = Field(default_factory=list)
     strategy: DealType = Field(default=DealType.BTL)
     max_agencies: int = Field(default=10, ge=1, le=50)
@@ -256,7 +256,7 @@ async def daily_scan_trigger(
     Runs a full pipeline scan for all configured states daily.
     """
     config = ScheduledRunRequest(
-        states=["NSW", "VIC", "QLD"],
+        states=["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"],
         strategy=DealType.BTL,
         max_agencies=20,
         generate_offers=True,
