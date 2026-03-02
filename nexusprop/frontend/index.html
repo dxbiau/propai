@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Insights Australia — Terminal</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        terminal: {
+                            bg: '#060a12',
+                            panel: '#0d1321',
+                            border: '#1a2233',
+                            accent: '#00d4aa',
+                            warn: '#f59e0b',
+                            danger: '#ef4444',
+                            info: '#3b82f6',
+                            muted: '#6b7280',
+                            text: '#e5e7eb',
+                            dim: '#9ca3af',
+                            bright: '#f9fafb',
+                            green: '#10b981',
+                            red: '#ef4444',
+                            gold: '#fbbf24',
+                            purple: '#a855f7',
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['"JetBrains Mono"', '"SF Mono"', '"Fira Code"', 'monospace'],
+                        sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #060a12; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+        /* ── Ticker ── */
+        .ticker-tape { overflow: hidden; white-space: nowrap; }
+        .ticker-content { display: inline-block; animation: ticker 60s linear infinite; }
+        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        /* ── Data cells ── */
+        .data-cell { border-right: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .data-cell:last-child { border-right: none; }
+
+        /* ── Live indicator ── */
+        .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; animation: pulse-glow 2s ease-in-out infinite; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+        @keyframes pulse-glow { 0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); } 50% { opacity: 0.5; box-shadow: 0 0 2px rgba(16, 185, 129, 0.1); } }
+
+        /* ── Cursor blink ── */
+        .cursor-blink::after { content: '█'; animation: cursorBlink 1s step-end infinite; color: #00d4aa; }
+        @keyframes cursorBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* ── Golden opportunity ── */
+        .golden-pulse { animation: goldPulse 2.5s infinite; }
+        @keyframes goldPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.25); } 70% { box-shadow: 0 0 0 8px rgba(251, 191, 36, 0); } }
+
+        /* ── Fade in ── */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+
+        /* ── Tabs ── */
+        .tab-active { color: #00d4aa; border-bottom: 2px solid #00d4aa; background: rgba(0, 212, 170, 0.05); }
+
+        /* ── Strategy badges ── */
+        .strategy-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .strat-btl { background: rgba(6, 95, 70, 0.4); color: #6ee7b7; border: 1px solid rgba(110, 231, 183, 0.2); }
+        .strat-brrr { background: rgba(124, 45, 18, 0.4); color: #fdba74; border: 1px solid rgba(253, 186, 116, 0.2); }
+        .strat-flip { background: rgba(88, 28, 135, 0.4); color: #d8b4fe; border: 1px solid rgba(216, 180, 254, 0.2); }
+        .strat-hmo { background: rgba(30, 58, 95, 0.4); color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.2); }
+        .strat-r2sa { background: rgba(113, 63, 18, 0.4); color: #fde68a; border: 1px solid rgba(253, 230, 138, 0.2); }
+        .strat-plo { background: rgba(63, 63, 70, 0.4); color: #d4d4d8; border: 1px solid rgba(212, 212, 216, 0.2); }
+        .strat-subdivision { background: rgba(68, 64, 60, 0.4); color: #e7e5e4; border: 1px solid rgba(231, 229, 228, 0.2); }
+        .strat-development { background: rgba(28, 25, 23, 0.4); color: #a8a29e; border: 1px solid rgba(168, 162, 158, 0.2); }
+        .strat-land_bank { background: rgba(54, 83, 20, 0.4); color: #bef264; border: 1px solid rgba(190, 242, 100, 0.2); }
+
+        /* ── Metric & BMV badges ── */
+        .bmv-badge { background: linear-gradient(135deg, #10b981, #059669); color: #000; font-weight: 700; padding: 2px 6px; border-radius: 4px; font-size: 9px; box-shadow: 0 0 8px rgba(16, 185, 129, 0.3); }
+        .metric-pill { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; padding: 2px 7px; font-size: 9px; backdrop-filter: blur(4px); }
+
+        /* ── Health bar ── */
+        .health-bar { height: 4px; border-radius: 10px; background: rgba(255,255,255,0.06); overflow: hidden; }
+        .health-fill { height: 100%; border-radius: 10px; transition: width 0.6s ease; }
+
+        /* ── Chat messages ── */
+        .chat-msg-user { background: rgba(30, 58, 95, 0.5); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 12px 12px 4px 12px; }
+        .chat-msg-ai { background: rgba(6, 78, 59, 0.5); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px 12px 12px 4px; }
+
+        /* ── Glass panels ── */
+        .glass-panel { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); }
+
+        /* ── Card hover effects ── */
+        .deal-card {
+            background: rgba(17, 24, 39, 0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.25s ease;
+            border-radius: 10px;
+        }
+        .deal-card:hover {
+            background: rgba(17, 24, 39, 0.85);
+            border-color: rgba(0, 212, 170, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(0, 212, 170, 0.1);
+        }
+
+        /* ── Ambient background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 20% 50%, rgba(0, 212, 170, 0.03) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 80%, rgba(168, 85, 247, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* ── KPI strip glow ── */
+        .kpi-strip { background: linear-gradient(180deg, rgba(17, 24, 39, 0.8) 0%, rgba(6, 10, 18, 0.9) 100%); }
+        .kpi-value { text-shadow: 0 0 20px currentColor; }
+
+        /* ── Button styles ── */
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4aa 0%, #00b896 100%);
+            color: #0a0e17;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 212, 170, 0.3);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 4px 16px rgba(0, 212, 170, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* ── Input field focus ── */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: rgba(0, 212, 170, 0.5) !important;
+            box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.1);
+        }
+
+        /* ── Header bar ── */
+        .top-bar {
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(17, 24, 39, 0.85) 100%);
+            backdrop-filter: blur(16px);
+        }
+
+        /* ── Status bar ── */
+        .status-bar {
+            background: linear-gradient(0deg, rgba(6, 10, 18, 0.95) 0%, rgba(17, 24, 39, 0.8) 100%);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="bg-[#060a12] text-terminal-text min-h-screen flex flex-col">
+    <!-- TOP BAR -->
+    <header class="top-bar border-b border-white/[0.06] px-4 py-2 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 bg-terminal-accent rounded flex items-center justify-center">
+                    <span class="text-terminal-bg font-bold text-xs">PIM</span>
+                </div>
+                <span class="font-semibold text-sm text-terminal-bright tracking-tight">PROPERTY INSIGHTS</span>
+                <span class="text-[10px] text-terminal-accent font-mono bg-terminal-accent/10 px-1.5 py-0.5 rounded">ALL AUSTRALIA</span>
+            </div>
+            <span class="text-terminal-muted text-xs">|</span>
+            <span class="text-terminal-dim text-xs font-mono" id="clock">--:--:-- AEST</span>
+            <div class="live-dot ml-2"></div>
+            <span class="text-terminal-green text-[10px] font-mono">LIVE</span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="showLocationScout()" class="bg-terminal-accent/10 hover:bg-terminal-accent/20 text-terminal-accent px-3 py-1 rounded text-xs font-mono font-medium transition border border-terminal-accent/30">▶ SCOUT</button>
+            <button onclick="showQuickROI()" class="bg-terminal-panel hover:bg-terminal-border text-terminal-dim px-3 py-1 rounded text-xs font-mono transition border border-terminal-border">ROI</button>
+            <button onclick="switchTab('mentor')" class="bg-terminal-purple/10 hover:bg-terminal-purple/20 text-terminal-purple px-3 py-1 rounded text-xs font-mono transition border border-terminal-purple/30">MENTOR</button>
+            <button onclick="switchTab('qa')" class="bg-terminal-info/10 hover:bg-terminal-info/20 text-terminal-info px-3 py-1 rounded text-xs font-mono transition border border-terminal-info/30">QA</button>
+            <div class="w-7 h-7 bg-terminal-border rounded-full flex items-center justify-center text-xs font-bold text-terminal-accent cursor-pointer" onclick="switchTab('profiler')">U</div>
+        </div>
+    </header>
+
+    <!-- TICKER TAPE -->
+    <div class="bg-black/30 border-b border-white/[0.04] py-0.5 ticker-tape flex-shrink-0">
+        <div class="ticker-content font-mono text-[11px] space-x-8">
+            <span class="text-terminal-dim">MEL INNER</span> <span class="text-terminal-green">$1.28M ▲2.3%</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">MEL WEST</span> <span class="text-terminal-green">$720K ▲4.5%</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">MEL NORTH</span> <span class="text-terminal-green">$680K ▲3.8%</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">MEL SE</span> <span class="text-terminal-green">$650K ▲4.2%</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">GEELONG</span> <span class="text-terminal-green">$690K ▲4.2%</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">BENDIGO</span> <span class="text-terminal-green">$530K ▲4.0%</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">BALLARAT</span> <span class="text-terminal-green">$490K ▲4.5%</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">RBA RATE</span> <span class="text-terminal-warn">4.35%</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">MEL AUCTION CLR</span> <span class="text-terminal-green">68.2%</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">MEL VACANCY</span> <span class="text-terminal-green">1.1% ▼</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">SHADOW LISTINGS</span> <span class="text-terminal-accent" id="ticker-shadow">0</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">GOLDEN OPPS</span> <span class="text-terminal-gold" id="ticker-golden">0</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">AUTO-SCOUT</span> <span class="text-terminal-green" id="ticker-scout">ACTIVE</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">DB</span> <span class="text-terminal-green" id="ticker-db">SQLite</span>
+            <span class="mx-4 text-terminal-border">│</span>
+            <span class="text-terminal-dim">QA HEALTH</span> <span class="text-terminal-green" id="ticker-qa">OK</span>
+        </div>
+    </div>
+
+    <!-- KPI STRIP -->
+    <div class="grid grid-cols-8 border-b border-white/[0.06] flex-shrink-0 kpi-strip">
+        <div class="data-cell px-2 py-2 text-center">
+            <div class="text-[9px] text-terminal-muted uppercase tracking-wider font-medium">Properties</div>
+            <div id="stat-properties" class="text-base font-mono font-bold text-terminal-bright kpi-value">0</div>
+        </div>
+        <div class="data-cell px-2 py-2 text-center">
+            <div class="text-[9px] text-terminal-muted uppercase tracking-wider font-medium">Analysed</div>
+            <div id="stat-deals" class="text-base font-mono font-bold text-terminal-bright kpi-value">0</div>
+        </div>
+        <div class="data-cell px-2 py-2 text-center">
+            <div class="text-[9px] text-terminal-gold uppercase tracking-wider font-semibold">Golden</div>
+            <div id="stat-golden" class="text-base font-mono font-bold text-terminal-gold kpi-value">0</div>
+        </div>
+        <div class="data-cell px-2 py-2 text-center">
+            <div class="text-[9px] text-terminal-muted uppercase tracking-wider font-medium">Avg Score</div>
+            <div id="stat-avg-score" class="text-base font-mono font-bold text-terminal-accent kpi-value">—</div>
+        </div>
+        <div class="data-cell px-2 py-2 text-center">
+            <div class="text-[9px] text-terminal-muted uppercase tracking-wider font-medium">Avg $/m²</div>
+            <div id="stat-avg-sqm" class="text-base font-mono font-bold text-terminal-bright kpi-value">—</div>
+        </div>
+        <div class="data-cell px-2 py-2 text-center">
+            <div class="text-[9px] text-terminal-muted uppercase tracking-wider font-medium">Offers</div>
+            <div id="stat-offers" class="text-base font-mono font-bold text-terminal-bright kpi-value">0</div>
+        </div>
+        <div class="data-cell px-2 py-2 text-center">
+            <div class="text-[9px] text-terminal-muted uppercase tracking-wider font-medium">Profile</div>
+            <div id="stat-profile" class="text-base font-mono font-bold text-terminal-purple kpi-value">—</div>
+        </div>
+        <div class="data-cell px-2 py-2 text-center border-r-0">
+            <div class="text-[9px] text-terminal-muted uppercase tracking-wider font-medium">Pipeline</div>
+            <div id="stat-pipeline" class="text-base font-mono font-bold text-terminal-green kpi-value">IDLE</div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="flex border-b border-white/[0.06] flex-shrink-0 bg-black/20 overflow-x-auto">
+        <button onclick="switchTab('deals')" id="tab-deals" class="px-4 py-2.5 text-xs font-mono font-medium tab-active tracking-wide whitespace-nowrap transition-all duration-200">DEALS</button>
+        <button onclick="switchTab('properties')" id="tab-properties" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">PROPERTIES</button>
+        <button onclick="switchTab('offers')" id="tab-offers" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">OFFERS</button>
+        <button onclick="switchTab('pipeline')" id="tab-pipeline" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">PIPELINE</button>
+        <button onclick="switchTab('profiler')" id="tab-profiler" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">👤 PROFILER</button>
+        <button onclick="switchTab('mentor')" id="tab-mentor" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🎓 MENTOR</button>
+        <button onclick="switchTab('diligence')" id="tab-diligence" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">DD BOT</button>
+        <button onclick="switchTab('negotiate')" id="tab-negotiate" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">NEGOTIATION</button>
+        <button onclick="switchTab('qa')" id="tab-qa" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🔬 QA ENGINE</button>
+        <button onclick="switchTab('photos')" id="tab-photos" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">📸 PHOTOS</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-y-auto p-3">
+        <!-- ═══ DEALS ═══ -->
+        <div id="panel-deals" class="tab-panel">
+            <div class="flex items-center space-x-2 mb-3 flex-wrap gap-y-1">
+                <select id="filter-region" onchange="filterDeals()" class="bg-terminal-panel border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text" style="max-width:240px">
+                    <option value="" selected>ALL STATES</option>
+                </select>
+                <input type="text" id="filter-suburb-search" placeholder="SEARCH SUBURB..." class="bg-terminal-panel border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-36" oninput="filterDeals()">
+                <select id="filter-strategy" onchange="filterDeals()" class="bg-terminal-panel border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text">
+                    <option value="">ALL STRATEGIES</option>
+                    <option value="BTL">BTL</option><option value="R2SA">R2SA</option><option value="FLIP">FLIP</option>
+                    <option value="BRRR">BRRR</option><option value="HMO">HMO</option><option value="PLO">PLO</option>
+                    <option value="SUBDIVISION">SUBDIVISION</option><option value="DEVELOPMENT">DEVELOPMENT</option>
+                    <option value="LAND_BANK">LAND BANK</option>
+                </select>
+                <select id="filter-sort" onchange="filterDeals()" class="bg-terminal-panel border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text">
+                    <option value="bargain_score">SORT: BARGAIN SCORE</option><option value="roi">SORT: RETURN ON INVESTMENT</option>
+                    <option value="cash_flow">SORT: CASH FLOW</option><option value="price">SORT: PRICE ↑</option>
+                    <option value="price_sqm">SORT: PRICE PER m² ↑</option><option value="payback">SORT: PAYBACK MONTHS ↑</option>
+                    <option value="bmv">SORT: BELOW MARKET VALUE % ↓</option>
+                </select>
+                <label class="flex items-center space-x-1 text-xs font-mono">
+                    <input type="checkbox" id="filter-golden" onchange="filterDeals()" class="rounded bg-terminal-panel border-terminal-border accent-terminal-gold">
+                    <span class="text-terminal-gold">GOLDEN ONLY</span>
+                </label>
+                <label class="flex items-center space-x-1 text-xs font-mono">
+                    <input type="checkbox" id="filter-bmv" onchange="filterDeals()" class="rounded bg-terminal-panel border-terminal-border accent-terminal-green">
+                    <span class="text-terminal-green">BMV ONLY</span>
+                </label>
+                <div class="flex-1"></div>
+                <span id="deals-count" class="text-[10px] font-mono text-terminal-muted"></span>
+                <div class="flex items-center space-x-1">
+                    <input type="text" id="quick-scout-input" placeholder="SCOUT SUBURB..." class="bg-terminal-panel border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-36" onkeydown="if(event.key==='Enter')quickScoutSuburb()">
+                    <button onclick="quickScoutSuburb()" class="bg-terminal-green/10 hover:bg-terminal-green/20 text-terminal-green px-3 py-1 rounded text-xs font-mono font-medium transition border border-terminal-green/30" title="Scout a suburb on-demand (fuzzy match)">SCOUT</button>
+                </div>
+                <button onclick="bulkAnalyze()" class="bg-terminal-accent/10 hover:bg-terminal-accent/20 text-terminal-accent px-3 py-1 rounded text-xs font-mono font-medium transition border border-terminal-accent/30">BULK ANALYSE</button>
+            </div>
+            <div id="deals-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                <div class="col-span-full text-center py-16 text-terminal-muted">
+                    <div class="font-mono text-sm mb-2">NO ACTIVE DEALS</div>
+                    <div class="text-xs">Run SCOUT to harvest properties, then analyse.</div>
+                    <div class="font-mono text-xs text-terminal-accent mt-3 cursor-blink">AWAITING DATA</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ PROPERTIES ═══ -->
+        <div id="panel-properties" class="tab-panel hidden">
+            <div class="flex items-center space-x-2 mb-3">
+                <input type="text" id="search-suburb" placeholder="SEARCH SUBURB..." class="bg-terminal-panel border border-terminal-border rounded px-3 py-1 text-xs font-mono text-terminal-text w-48" oninput="searchProperties()">
+                <select id="prop-type-filter" onchange="searchProperties()" class="bg-terminal-panel border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text">
+                    <option value="">ALL TYPES</option><option value="house">HOUSE</option><option value="unit">UNIT</option>
+                    <option value="apartment">APARTMENT</option><option value="townhouse">TOWNHOUSE</option><option value="villa">VILLA</option>
+                    <option value="land">LAND</option><option value="rural">RURAL</option><option value="farm">FARM</option>
+                    <option value="acreage">ACREAGE</option><option value="commercial">COMMERCIAL</option><option value="industrial">INDUSTRIAL</option>
+                    <option value="retail">RETAIL</option><option value="warehouse">WAREHOUSE</option><option value="duplex">DUPLEX</option>
+                </select>
+                <label class="flex items-center space-x-1 text-xs font-mono">
+                    <input type="checkbox" id="distress-filter" onchange="searchProperties()" class="rounded bg-terminal-panel border-terminal-border accent-terminal-danger">
+                    <span class="text-terminal-danger">DISTRESSED</span>
+                </label>
+            </div>
+            <div id="properties-list" class="space-y-1">
+                <div class="text-center py-16 text-terminal-muted font-mono text-sm">NO PROPERTIES SCRAPED</div>
+            </div>
+        </div>
+
+        <!-- ═══ OFFERS ═══ -->
+        <div id="panel-offers" class="tab-panel hidden">
+            <div id="offers-list" class="space-y-2">
+                <div class="text-center py-16 text-terminal-muted font-mono text-sm">NO OFFERS GENERATED</div>
+            </div>
+        </div>
+
+        <!-- ═══ PIPELINE ═══ -->
+        <div id="panel-pipeline" class="tab-panel hidden">
+            <div class="bg-terminal-panel rounded border border-terminal-border p-4 mb-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="font-mono text-xs text-terminal-accent tracking-wider">▶ LAUNCH PIPELINE</div>
+                    <button onclick="showLocationScout()" class="bg-terminal-accent/10 hover:bg-terminal-accent/20 text-terminal-accent px-3 py-1 rounded text-[10px] font-mono font-medium transition border border-terminal-accent/30">🗺 LOCATION SCOUT</button>
+                </div>
+                <div class="grid grid-cols-4 gap-3 mb-3">
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">REGIONS</label>
+                        <select id="pipeline-regions" multiple class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full" size="4">
+                            <option value="CBD & Inner City" selected>CBD & Inner City</option>
+                            <option value="Inner North">Inner North</option>
+                            <option value="Inner West">Inner West</option>
+                            <option value="Western Growth">Western Growth</option>
+                            <option value="Northern Growth">Northern Growth</option>
+                            <option value="Inner East">Inner East</option>
+                            <option value="South Eastern">South Eastern</option>
+                            <option value="Bayside & Peninsula">Bayside & Peninsula</option>
+                            <option value="Geelong & Surf Coast">Geelong & Surf Coast</option>
+                            <option value="Bendigo & Goldfields">Bendigo & Goldfields</option>
+                            <option value="Ballarat & Central Highlands">Ballarat</option>
+                            <option value="Gippsland">Gippsland</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">SUBURBS (comma separated)</label>
+                        <input type="text" id="pipeline-suburbs" placeholder="e.g. Bendigo, Epsom, Quarry Hill" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">STRATEGY</label>
+                        <select id="pipeline-strategy" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full">
+                            <option value="BTL">BTL</option><option value="R2SA">R2SA</option><option value="FLIP">FLIP</option>
+                            <option value="BRRR">BRRR</option><option value="HMO">HMO</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">MAX AGENCIES</label>
+                        <input type="number" id="pipeline-agencies" value="10" min="1" max="50" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">OPTIONS</label>
+                        <div class="space-y-1 mt-0.5">
+                            <label class="flex items-center space-x-1 text-[10px] font-mono"><input type="checkbox" id="pipeline-offers" class="rounded bg-terminal-bg border-terminal-border accent-terminal-accent"><span class="text-terminal-dim">AUTO-OFFERS</span></label>
+                            <label class="flex items-center space-x-1 text-[10px] font-mono"><input type="checkbox" id="pipeline-stacker" checked class="rounded bg-terminal-bg border-terminal-border accent-terminal-accent"><span class="text-terminal-dim">STACKER</span></label>
+                            <label class="flex items-center space-x-1 text-[10px] font-mono"><input type="checkbox" id="pipeline-qa" checked class="rounded bg-terminal-bg border-terminal-border accent-terminal-accent"><span class="text-terminal-dim">QA ENGINE</span></label>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="runPipeline()" id="btn-run-pipeline" class="bg-terminal-accent text-terminal-bg px-6 py-2 rounded font-mono text-xs font-bold tracking-wider hover:bg-terminal-accent/90 transition">▶ EXECUTE PIPELINE</button>
+            </div>
+            <div class="font-mono text-xs text-terminal-muted mb-2 tracking-wider">RECENT RUNS</div>
+            <div id="pipeline-runs" class="space-y-1">
+                <div class="text-center py-8 text-terminal-muted font-mono text-xs">NO PIPELINE RUNS</div>
+            </div>
+        </div>
+
+        <!-- ═══ PROFILER ═══ -->
+        <div id="panel-profiler" class="tab-panel hidden">
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-terminal-panel rounded border border-terminal-border p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="font-mono text-xs text-terminal-purple tracking-wider">👤 INVESTOR PROFILER</div>
+                        <span class="text-[10px] font-mono text-terminal-accent bg-terminal-accent/10 px-2 py-0.5 rounded">AI-POWERED</span>
+                    </div>
+                    <div class="text-[10px] text-terminal-muted mb-3">Tell us about your investment situation — income, goals, experience, budget. The AI will build your personalised investor profile.</div>
+                    <textarea id="profiler-input" rows="6" placeholder="e.g., I earn $180k salary, have $120k savings, own 1 IP worth $650k with $400k owing. Looking to build a 5-property portfolio over 3 years. Intermediate experience, prefer cash flow positive deals in Brisbane area..." class="bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs font-mono text-terminal-text w-full resize-none mb-3"></textarea>
+                    <button onclick="buildProfile()" class="bg-terminal-purple/20 hover:bg-terminal-purple/30 text-terminal-purple px-4 py-2 rounded text-xs font-mono font-medium transition border border-terminal-purple/30 w-full">BUILD / UPDATE PROFILE</button>
+                    <div id="profiler-questions" class="hidden mt-3 space-y-2">
+                        <div class="text-[10px] text-terminal-muted font-mono tracking-wider">QUESTIONS TO STRENGTHEN YOUR PROFILE:</div>
+                        <div id="profiler-q-list" class="space-y-1"></div>
+                    </div>
+                </div>
+                <div class="col-span-2 space-y-3">
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-terminal-panel rounded border border-terminal-border p-3 text-center">
+                            <div class="text-[9px] text-terminal-muted font-mono mb-1 tracking-wider">INVESTOR READINESS</div>
+                            <div id="profile-readiness" class="text-3xl font-mono font-bold text-terminal-accent">—</div>
+                            <div class="text-[9px] text-terminal-muted font-mono mt-0.5">/ 100</div>
+                        </div>
+                        <div class="bg-terminal-panel rounded border border-terminal-border p-3 text-center">
+                            <div class="text-[9px] text-terminal-muted font-mono mb-1 tracking-wider">BORROWING POWER</div>
+                            <div id="profile-borrowing" class="text-xl font-mono font-bold text-terminal-green">—</div>
+                            <div class="text-[9px] text-terminal-muted font-mono mt-0.5">APRA ESTIMATE</div>
+                        </div>
+                        <div class="bg-terminal-panel rounded border border-terminal-border p-3 text-center">
+                            <div class="text-[9px] text-terminal-muted font-mono mb-1 tracking-wider">MAX PURCHASE</div>
+                            <div id="profile-max-purchase" class="text-xl font-mono font-bold text-terminal-bright">—</div>
+                            <div class="text-[9px] text-terminal-muted font-mono mt-0.5">INC. COSTS</div>
+                        </div>
+                    </div>
+                    <div class="bg-terminal-panel rounded border border-terminal-border p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[9px] text-terminal-muted font-mono tracking-wider">PROFILE COMPLETENESS</span>
+                            <span id="profile-complete-pct" class="text-xs font-mono font-bold text-terminal-accent">0%</span>
+                        </div>
+                        <div class="health-bar"><div id="profile-complete-bar" class="health-fill bg-terminal-accent" style="width: 0%"></div></div>
+                    </div>
+                    <div id="profile-details" class="bg-terminal-panel rounded border border-terminal-border p-4">
+                        <div class="text-center py-8 text-terminal-muted font-mono text-xs">
+                            <div>NO PROFILE BUILT</div>
+                            <div class="text-[10px] mt-1">Tell us about yourself to get personalised deal recommendations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ MENTOR ═══ -->
+        <div id="panel-mentor" class="tab-panel hidden">
+            <div class="grid grid-cols-4 gap-3">
+                <div class="bg-terminal-panel rounded border border-terminal-border p-3">
+                    <div class="font-mono text-xs text-terminal-purple tracking-wider mb-3">🎓 COACHING TOPICS</div>
+                    <div class="space-y-1">
+                        <button onclick="askMentor('market_commentary')" class="w-full text-left bg-terminal-bg hover:bg-terminal-border px-2 py-1.5 rounded text-[10px] font-mono text-terminal-text transition">📊 Market Commentary</button>
+                        <button onclick="askMentor('strategy_education')" class="w-full text-left bg-terminal-bg hover:bg-terminal-border px-2 py-1.5 rounded text-[10px] font-mono text-terminal-text transition">📚 Strategy Education</button>
+                        <button onclick="askMentor('portfolio_review')" class="w-full text-left bg-terminal-bg hover:bg-terminal-border px-2 py-1.5 rounded text-[10px] font-mono text-terminal-text transition">📋 Portfolio Review</button>
+                        <button onclick="askMentor('suburb_deepdive')" class="w-full text-left bg-terminal-bg hover:bg-terminal-border px-2 py-1.5 rounded text-[10px] font-mono text-terminal-text transition">📍 Suburb Deep Dive</button>
+                        <button onclick="askMentor('deal_review')" class="w-full text-left bg-terminal-bg hover:bg-terminal-border px-2 py-1.5 rounded text-[10px] font-mono text-terminal-text transition">🔍 Deal Review</button>
+                        <button onclick="askMentor('next_steps')" class="w-full text-left bg-terminal-bg hover:bg-terminal-border px-2 py-1.5 rounded text-[10px] font-mono text-terminal-text transition">🎯 Next Steps</button>
+                        <button onclick="askMentor('general_coaching')" class="w-full text-left bg-terminal-bg hover:bg-terminal-border px-2 py-1.5 rounded text-[10px] font-mono text-terminal-text transition">💬 General Coaching</button>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-terminal-border">
+                        <button onclick="getWeeklyBrief()" class="w-full bg-terminal-purple/10 hover:bg-terminal-purple/20 text-terminal-purple px-3 py-2 rounded text-[10px] font-mono font-medium transition border border-terminal-purple/30">📰 WEEKLY BRIEF</button>
+                    </div>
+                </div>
+                <div class="col-span-3 bg-terminal-panel rounded border border-terminal-border p-3 flex flex-col" style="min-height: 500px">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="font-mono text-xs text-terminal-accent tracking-wider">MENTOR — AI PROPERTY COACH</div>
+                        <span id="mentor-topic-badge" class="text-[10px] font-mono text-terminal-muted bg-terminal-border px-2 py-0.5 rounded">GENERAL</span>
+                    </div>
+                    <div id="mentor-chat" class="flex-1 overflow-y-auto space-y-2 mb-2 text-xs font-mono">
+                        <div class="text-terminal-muted text-center py-12">
+                            <div class="text-sm mb-2">🎓 YOUR PROPERTY MENTOR</div>
+                            <div class="text-[10px]">Ask anything about Australian property investment</div>
+                            <div class="text-[10px] text-terminal-dim mt-1">Coaching adapts to your experience level</div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="mentor-input" placeholder="Ask your property investment question..." class="flex-1 bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs font-mono text-terminal-text" onkeydown="if(event.key==='Enter')sendMentorMessage()">
+                        <button onclick="sendMentorMessage()" class="bg-terminal-accent text-terminal-bg px-4 py-2 rounded text-xs font-mono font-bold hover:bg-terminal-accent/90 transition">ASK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ DUE DILIGENCE ═══ -->
+        <div id="panel-diligence" class="tab-panel hidden">
+            <div class="bg-terminal-panel rounded border border-terminal-border p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <div class="font-mono text-xs text-terminal-warn tracking-wider">⚠ DUE DILIGENCE BOT</div>
+                        <div class="text-[10px] text-terminal-muted mt-0.5">Section 32 & Contract of Sale Analysis — $99/report</div>
+                    </div>
+                    <span class="text-[10px] font-mono text-terminal-accent bg-terminal-accent/10 px-2 py-0.5 rounded">AI-POWERED</span>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">DOCUMENT TYPE</label>
+                        <select id="dd-doc-type" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full">
+                            <option value="section_32">Section 32 / Vendor Statement</option>
+                            <option value="contract_of_sale">Contract of Sale</option>
+                            <option value="strata_report">Strata / Body Corp Report</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">PASTE DOCUMENT TEXT</label>
+                        <textarea id="dd-text" rows="8" placeholder="Paste Section 32 / Contract text here..." class="bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs font-mono text-terminal-text w-full resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">SPECIFIC CONCERNS (optional)</label>
+                        <input type="text" id="dd-concerns" placeholder="e.g., Planning to subdivide, worried about covenants..." class="bg-terminal-bg border border-terminal-border rounded px-3 py-1 text-xs font-mono text-terminal-text w-full">
+                    </div>
+                    <button onclick="runDueDiligence()" class="bg-terminal-warn/10 hover:bg-terminal-warn/20 text-terminal-warn px-4 py-2 rounded text-xs font-mono font-medium transition border border-terminal-warn/30 w-full">⚠ ANALYSE DOCUMENT — $99</button>
+                </div>
+                <div id="dd-result" class="hidden mt-4 bg-terminal-bg rounded border border-terminal-border p-4"></div>
+            </div>
+        </div>
+
+        <!-- ═══ NEGOTIATION SHADOW ═══ -->
+        <div id="panel-negotiate" class="tab-panel hidden">
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-terminal-panel rounded border border-terminal-border p-3">
+                    <div class="font-mono text-xs text-terminal-info tracking-wider mb-2">AGENT PROFILE</div>
+                    <div class="space-y-2">
+                        <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">AGENT NAME</label><input type="text" id="neg-agent-name" placeholder="Jane Smith" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full"></div>
+                        <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">AGENCY</label><input type="text" id="neg-agency" placeholder="Ray White Mosman" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full"></div>
+                        <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">YOUR MAX BUDGET</label><input type="number" id="neg-budget" placeholder="950000" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full"></div>
+                    </div>
+                </div>
+                <div class="col-span-2 bg-terminal-panel rounded border border-terminal-border p-3 flex flex-col" style="min-height: 400px">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="font-mono text-xs text-terminal-accent tracking-wider">NEGOTIATION SHADOW — LIVE COACHING</div>
+                        <span class="text-[10px] font-mono text-terminal-muted">$500/mo</span>
+                    </div>
+                    <div id="neg-chat" class="flex-1 overflow-y-auto space-y-2 mb-2 text-xs font-mono">
+                        <div class="text-terminal-muted text-center py-8"><div>SHADOW MODE READY</div><div class="text-[10px] mt-1">Describe what's happening in your negotiation</div></div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="neg-message" placeholder="What just happened?..." class="flex-1 bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs font-mono text-terminal-text" onkeydown="if(event.key==='Enter')sendNegotiationMessage()">
+                        <button onclick="sendNegotiationMessage()" class="bg-terminal-accent text-terminal-bg px-4 py-2 rounded text-xs font-mono font-bold hover:bg-terminal-accent/90 transition">SEND</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ QA ENGINE ═══ -->
+        <div id="panel-qa" class="tab-panel hidden">
+            <div class="grid grid-cols-3 gap-3 mb-3">
+                <div class="bg-terminal-panel rounded border border-terminal-border p-3">
+                    <div class="font-mono text-xs text-terminal-info tracking-wider mb-3">🔬 SYSTEM HEALTH</div>
+                    <div id="qa-health-grid" class="space-y-2">
+                        <div class="text-center py-6 text-terminal-muted font-mono text-[10px]">RUN HEALTH CHECK</div>
+                    </div>
+                    <button onclick="runQAHealthCheck()" class="mt-3 w-full bg-terminal-info/10 hover:bg-terminal-info/20 text-terminal-info px-3 py-1.5 rounded text-[10px] font-mono font-medium transition border border-terminal-info/30">REFRESH HEALTH CHECK</button>
+                </div>
+                <div class="bg-terminal-panel rounded border border-terminal-border p-3">
+                    <div class="font-mono text-xs text-terminal-accent tracking-wider mb-3">📈 PERFORMANCE</div>
+                    <div id="qa-trends" class="space-y-2">
+                        <div class="text-center py-6 text-terminal-muted font-mono text-[10px]">NO DATA YET</div>
+                    </div>
+                </div>
+                <div class="bg-terminal-panel rounded border border-terminal-border p-3">
+                    <div class="font-mono text-xs text-terminal-gold tracking-wider mb-3">⚡ SELF-GOVERNANCE</div>
+                    <div class="text-[10px] text-terminal-muted mb-3">QA monitors all agents, scores quality across 5 dimensions, and auto-generates improved prompts for underperformers.</div>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Accuracy</span><span class="text-terminal-text">30%</span></div>
+                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Relevance</span><span class="text-terminal-text">20%</span></div>
+                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Completeness</span><span class="text-terminal-text">20%</span></div>
+                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Timeliness</span><span class="text-terminal-text">10%</span></div>
+                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Actionability</span><span class="text-terminal-text">20%</span></div>
+                    </div>
+                    <button onclick="runFullGovernance()" class="mt-3 w-full bg-terminal-gold/10 hover:bg-terminal-gold/20 text-terminal-gold px-3 py-1.5 rounded text-[10px] font-mono font-medium transition border border-terminal-gold/30">⚡ RUN GOVERNANCE CYCLE</button>
+                </div>
+            </div>
+            <div class="bg-terminal-panel rounded border border-terminal-border p-3">
+                <div class="font-mono text-xs text-terminal-accent tracking-wider mb-2">🧬 EVOLVED SKILLS</div>
+                <div id="qa-skills" class="grid grid-cols-4 gap-2">
+                    <div class="text-center py-4 col-span-full text-terminal-muted font-mono text-[10px]">No evolved skills yet — run governance cycle after pipeline execution</div>
+                </div>
+            </div>
+        </div>
+        <!-- ═══ PHOTOS ═══ -->
+        <div id="panel-photos" class="tab-panel hidden">
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-terminal-panel rounded border border-terminal-border p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="font-mono text-xs text-terminal-accent tracking-wider">📸 PHOTO ENHANCER</div>
+                        <span class="text-[10px] font-mono text-terminal-green bg-terminal-green/10 px-2 py-0.5 rounded">FREE</span>
+                    </div>
+                    <div class="text-[10px] text-terminal-muted mb-3">AI-powered property photo polishing. Upload a photo and select a preset to enhance it with professional lighting, colour correction, and sharpening.</div>
+                    <div class="space-y-2">
+                        <div>
+                            <label class="block text-[10px] text-terminal-muted font-mono mb-1">UPLOAD PHOTO</label>
+                            <input type="file" id="photo-file" accept="image/*" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full" onchange="previewPhoto(this)">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-terminal-muted font-mono mb-1">PRESET</label>
+                            <select id="photo-preset" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full">
+                                <option value="real_estate_standard">Real Estate Standard</option>
+                                <option value="luxury_listing">Luxury Listing</option>
+                                <option value="renovation_before_after">Renovation Before/After</option>
+                                <option value="exterior_hero">Exterior Hero Shot</option>
+                                <option value="interior_bright">Interior Bright & Airy</option>
+                            </select>
+                        </div>
+                        <label class="flex items-center space-x-1 text-xs font-mono">
+                            <input type="checkbox" id="photo-upscale" class="rounded bg-terminal-panel border-terminal-border accent-terminal-accent">
+                            <span class="text-terminal-dim text-[10px]">AI Upscale (2×)</span>
+                        </label>
+                        <button onclick="enhancePhoto()" class="bg-terminal-accent/10 hover:bg-terminal-accent/20 text-terminal-accent px-4 py-2 rounded text-xs font-mono font-medium transition border border-terminal-accent/30 w-full">✨ ENHANCE PHOTO</button>
+                        <button onclick="analyzePhotoQuality()" class="bg-terminal-panel hover:bg-terminal-border text-terminal-dim px-4 py-1.5 rounded text-[10px] font-mono transition border border-terminal-border w-full">ANALYSE QUALITY</button>
+                    </div>
+                    <div id="photo-analysis" class="hidden mt-3 bg-terminal-bg rounded border border-terminal-border p-3 text-xs font-mono space-y-1"></div>
+                </div>
+                <div class="col-span-2 bg-terminal-panel rounded border border-terminal-border p-4">
+                    <div class="font-mono text-xs text-terminal-accent tracking-wider mb-3">BEFORE / AFTER PREVIEW</div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <div class="text-[10px] text-terminal-muted font-mono mb-1">ORIGINAL</div>
+                            <div id="photo-before" class="bg-terminal-bg border border-terminal-border rounded flex items-center justify-center" style="min-height: 300px">
+                                <span class="text-terminal-muted text-xs font-mono">Upload a photo</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-terminal-muted font-mono mb-1">ENHANCED</div>
+                            <div id="photo-after" class="bg-terminal-bg border border-terminal-border rounded flex items-center justify-center" style="min-height: 300px">
+                                <span class="text-terminal-muted text-xs font-mono">Enhanced result will appear here</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="photo-metrics" class="hidden mt-3 grid grid-cols-4 gap-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- STATUS BAR -->
+    <footer class="status-bar border-t border-white/[0.06] px-4 py-1.5 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center space-x-4 text-[10px] font-mono text-terminal-muted">
+            <span>PIA v5.0.0</span><span>|</span><span id="status-text">READY</span><span>|</span><span>propertyinsights.com.au</span>
+        </div>
+        <div class="flex items-center space-x-4 text-[10px] font-mono text-terminal-muted">
+            <span id="db-status" class="text-terminal-green">● SQLite PERSISTED</span><span>|</span>
+            <span id="scout-status" class="text-terminal-green">● AUTO-SCOUT ACTIVE</span><span>|</span>
+            <span>14 AGENTS + VALUE-ADD ENGINE</span><span>|</span>
+            <span id="api-status" class="text-terminal-green">● API CONNECTED</span><span>|</span><span id="sub-tier" class="text-terminal-accent">EXPLORER</span>
+        </div>
+    </footer>
+
+    <!-- QUICK ROI MODAL -->
+    <div id="modal-roi" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80">
+        <div class="bg-terminal-panel rounded border border-terminal-border p-5 w-full max-w-sm animate-fade-in">
+            <div class="flex items-center justify-between mb-3">
+                <div class="font-mono text-xs text-terminal-accent tracking-wider">ROI CALCULATOR</div>
+                <button onclick="closeModal('modal-roi')" class="text-terminal-muted hover:text-terminal-text text-lg">&times;</button>
+            </div>
+            <div class="space-y-2">
+                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">PURCHASE PRICE (AUD)</label><input type="number" id="roi-price" placeholder="650000" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"></div>
+                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">WEEKLY RENT (AUD)</label><input type="number" id="roi-rent" placeholder="500" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"></div>
+                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">STATE</label><select id="roi-state" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"><option value="NSW">NSW</option><option value="VIC" selected>VIC</option><option value="QLD">QLD</option><option value="SA">SA</option><option value="WA">WA</option><option value="TAS">TAS</option><option value="NT">NT</option><option value="ACT">ACT</option></select></div>
+                <button onclick="calculateROI()" class="bg-terminal-accent text-terminal-bg w-full py-2 rounded font-mono text-xs font-bold hover:bg-terminal-accent/90 transition">CALCULATE</button>
+                <div id="roi-result" class="hidden bg-terminal-bg rounded border border-terminal-border p-3 mt-2 font-mono text-xs"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OFFER MODAL -->
+    <div id="modal-offer" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80">
+        <div class="bg-terminal-panel rounded border border-terminal-border p-5 w-full max-w-md animate-fade-in max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
+                <div class="font-mono text-xs text-terminal-accent tracking-wider">GENERATE OFFER</div>
+                <button onclick="closeModal('modal-offer')" class="text-terminal-muted hover:text-terminal-text text-lg">&times;</button>
+            </div>
+            <input type="hidden" id="offer-deal-id">
+            <div class="space-y-2">
+                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">FULL NAME</label><input type="text" id="offer-name" placeholder="John Smith" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"></div>
+                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">ENTITY (optional)</label><input type="text" id="offer-entity" placeholder="Smith Family Trust" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"></div>
+                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">MAX BUDGET (AUD)</label><input type="number" id="offer-budget" placeholder="750000" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"></div>
+                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">TONE</label><select id="offer-tone" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full"><option value="professional">PROFESSIONAL</option><option value="empathetic">EMPATHETIC</option><option value="urgent">URGENT</option><option value="family_story">FAMILY STORY</option><option value="investor_direct">INVESTOR DIRECT</option></select></div>
+                <div><label class="block text-[10px] text-terminal-muted font-mono mb-0.5">PERSONAL STORY (optional)</label><textarea id="offer-story" rows="2" placeholder="Young family looking for first home..." class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full resize-none"></textarea></div>
+                <button onclick="submitOffer()" class="bg-terminal-green text-terminal-bg w-full py-2 rounded font-mono text-xs font-bold hover:bg-terminal-green/90 transition">▶ GENERATE OFFER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEAL DETAIL MODAL -->
+    <div id="modal-deal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80">
+        <div class="bg-terminal-panel rounded border border-terminal-border p-5 w-full max-w-2xl animate-fade-in max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
+                <div class="font-mono text-xs text-terminal-accent tracking-wider">DEAL DEEP DIVE</div>
+                <button onclick="closeModal('modal-deal')" class="text-terminal-muted hover:text-terminal-text text-lg">&times;</button>
+            </div>
+            <div id="deal-detail-content" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- PROPERTY DETAIL MODAL -->
+    <div id="modal-property" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80">
+        <div class="bg-terminal-panel rounded border border-terminal-border p-5 w-full max-w-2xl animate-fade-in max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-3">
+                <div class="font-mono text-xs text-terminal-accent tracking-wider">PROPERTY DETAIL</div>
+                <button onclick="closeModal('modal-property')" class="text-terminal-muted hover:text-terminal-text text-lg">&times;</button>
+            </div>
+            <div id="property-detail-content" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- LOCATION SCOUT MODAL -->
+    <div id="modal-scout" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80">
+        <div class="bg-terminal-panel rounded border border-terminal-border p-5 w-full max-w-2xl animate-fade-in max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <div class="font-mono text-sm text-terminal-accent tracking-wider font-bold">LOCATION SCOUT</div>
+                    <div class="text-[10px] text-terminal-muted mt-0.5" id="scout-db-stats">Loading location database...</div>
+                </div>
+                <button onclick="closeModal('modal-scout')" class="text-terminal-muted hover:text-terminal-text text-lg">&times;</button>
+            </div>
+
+            <!-- Scope selector -->
+            <div class="mb-3">
+                <label class="block text-[10px] text-terminal-muted font-mono mb-1 tracking-wider">SCOUT SCOPE</label>
+                <div class="flex space-x-2">
+                    <button onclick="setScoutScope('all')" id="scout-scope-all" class="bg-terminal-accent/20 text-terminal-accent px-3 py-1.5 rounded text-xs font-mono font-medium border border-terminal-accent/30 transition">🌏 ALL AUSTRALIA</button>
+                    <button onclick="setScoutScope('region')" id="scout-scope-region" class="bg-terminal-panel text-terminal-dim px-3 py-1.5 rounded text-xs font-mono font-medium border border-terminal-border transition hover:text-terminal-text">🗺 BY REGION</button>
+                    <button onclick="setScoutScope('suburb')" id="scout-scope-suburb" class="bg-terminal-panel text-terminal-dim px-3 py-1.5 rounded text-xs font-mono font-medium border border-terminal-border transition hover:text-terminal-text">🏘 BY SUBURB</button>
+                </div>
+            </div>
+
+            <!-- State picker -->
+            <div id="scout-state-row" class="mb-3">
+                <label class="block text-[10px] text-terminal-muted font-mono mb-1 tracking-wider">FILTER BY STATE</label>
+                <select id="scout-state-select" onchange="onScoutStateChange()" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                    <option value="">ALL STATES</option>
+                    <option value="NSW">NSW — New South Wales</option>
+                    <option value="VIC">VIC — Victoria</option>
+                    <option value="QLD">QLD — Queensland</option>
+                    <option value="SA">SA — South Australia</option>
+                    <option value="WA">WA — Western Australia</option>
+                    <option value="TAS">TAS — Tasmania</option>
+                    <option value="NT">NT — Northern Territory</option>
+                    <option value="ACT">ACT — Australian Capital Territory</option>
+                </select>
+            </div>
+
+            <!-- Region picker (shown for region/suburb scope) -->
+            <div id="scout-region-row" class="hidden mb-3">
+                <label class="block text-[10px] text-terminal-muted font-mono mb-1 tracking-wider">SELECT REGION</label>
+                <select id="scout-region-select" onchange="onScoutRegionChange()" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                    <option value="">— Select a region —</option>
+                </select>
+            </div>
+
+            <!-- Suburb picker (shown for suburb scope) -->
+            <div id="scout-suburb-row" class="hidden mb-3">
+                <label class="block text-[10px] text-terminal-muted font-mono mb-1 tracking-wider">SEARCH SUBURBS</label>
+                <input type="text" id="scout-suburb-search" placeholder="Type suburb name or postcode..." class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full mb-2" oninput="searchScoutSuburbs()">
+                <div id="scout-suburb-results" class="max-h-40 overflow-y-auto space-y-1"></div>
+                <div id="scout-selected-suburbs" class="flex flex-wrap gap-1 mt-2"></div>
+            </div>
+
+            <!-- Region/Suburb Market Data Preview -->
+            <div id="scout-market-preview" class="hidden mb-3">
+                <label class="block text-[10px] text-terminal-muted font-mono mb-1 tracking-wider">MARKET DATA PREVIEW</label>
+                <div id="scout-market-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto"></div>
+            </div>
+
+            <!-- Scout Selection Summary -->
+            <div class="bg-terminal-bg rounded border border-terminal-border p-3 mb-3">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[10px] text-terminal-muted font-mono tracking-wider">SCOUT TARGET</span>
+                    <span id="scout-target-summary" class="text-xs font-mono text-terminal-accent">All Australia — 8 States · 47+ Regions · 260+ Suburbs</span>
+                </div>
+                <div class="flex items-center space-x-4 text-[10px] font-mono text-terminal-dim">
+                    <span id="scout-region-count">—</span>
+                    <span id="scout-suburb-count">—</span>
+                    <span id="scout-property-count">—</span>
+                </div>
+            </div>
+
+            <button onclick="executeLocationScout()" class="bg-terminal-accent text-terminal-bg w-full py-2.5 rounded font-mono text-xs font-bold hover:bg-terminal-accent/90 transition">▶ EXECUTE LOCATION SCOUT</button>
+        </div>
+    </div>
+
+    <!-- CHATBOT FLOATING WIDGET -->
+    <div id="chatbot-fab" onclick="toggleChatbot()" class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-terminal-accent rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-transform" title="Chat with Australian Market AI">
+        <span class="text-2xl">💬</span>
+        <span id="chatbot-badge" class="hidden absolute -top-1 -right-1 bg-terminal-danger text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center">!</span>
+    </div>
+    <div id="chatbot-panel" class="fixed bottom-24 right-6 z-40 hidden w-96 max-h-[520px] bg-terminal-panel border border-terminal-border rounded-lg shadow-2xl flex flex-col animate-fade-in">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-terminal-border bg-terminal-bg/50 rounded-t-lg">
+            <div class="flex items-center space-x-2">
+                <div class="live-dot"></div>
+                <div>
+                    <div class="font-mono text-xs text-terminal-accent font-bold tracking-wider">AUSTRALIAN MARKET AI</div>
+                    <div class="text-[9px] text-terminal-muted">Trending news & market intelligence</div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="loadTrendingNews()" class="text-terminal-muted hover:text-terminal-accent text-xs font-mono" title="Refresh News">📰</button>
+                <button onclick="clearChatSession()" class="text-terminal-muted hover:text-terminal-warn text-xs font-mono" title="Clear Chat">🗑</button>
+                <button onclick="toggleChatbot()" class="text-terminal-muted hover:text-terminal-text text-lg">&times;</button>
+            </div>
+        </div>
+        <!-- Trending News Bar -->
+        <div id="chatbot-trending" class="px-3 py-2 border-b border-terminal-border bg-terminal-bg/30 max-h-24 overflow-y-auto">
+            <div class="text-[9px] text-terminal-muted font-mono tracking-wider mb-1">TRENDING</div>
+            <div id="chatbot-trending-list" class="space-y-1 text-[10px]">
+                <div class="text-terminal-dim">Loading trending news...</div>
+            </div>
+        </div>
+        <!-- Messages -->
+        <div id="chatbot-messages" class="flex-1 overflow-y-auto px-3 py-3 space-y-2 min-h-[200px] max-h-[300px]">
+            <div class="flex justify-start">
+                <div class="chat-msg-ai rounded-lg px-3 py-2 max-w-[85%]">
+                    <div class="text-[10px] text-terminal-accent mb-0.5 font-mono">MARKET AI</div>
+                    <div class="text-xs text-terminal-text">Hey! I'm your Australian property market assistant. Ask me about trending news, suburb insights, or investment strategies across all states.</div>
+                </div>
+            </div>
+        </div>
+        <!-- Input -->
+        <div class="px-3 py-2 border-t border-terminal-border bg-terminal-bg/30 rounded-b-lg">
+            <div class="flex space-x-2">
+                <input type="text" id="chatbot-input" placeholder="Ask about Australian property..." class="flex-1 bg-terminal-bg border border-terminal-border rounded px-3 py-2 text-xs font-mono text-terminal-text placeholder-terminal-muted focus:border-terminal-accent focus:outline-none" onkeydown="if(event.key==='Enter')sendChatMessage()">
+                <button onclick="sendChatMessage()" class="bg-terminal-accent text-terminal-bg px-3 py-2 rounded text-xs font-mono font-bold hover:bg-terminal-accent/90 transition">▶</button>
+            </div>
+            <div class="flex justify-between mt-1">
+                <div class="flex space-x-2">
+                    <button onclick="sendQuickChat('What\'s trending in Australian property?')" class="text-[9px] text-terminal-muted hover:text-terminal-accent font-mono">📰 News</button>
+                    <button onclick="sendQuickChat('Best suburbs for yield in Australia?')" class="text-[9px] text-terminal-muted hover:text-terminal-accent font-mono">📊 Yields</button>
+                    <button onclick="sendQuickChat('Current national market outlook?')" class="text-[9px] text-terminal-muted hover:text-terminal-accent font-mono">🔮 Outlook</button>
+                </div>
+                <div class="text-[8px] text-terminal-muted font-mono" id="chatbot-status">Ready</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast-container" class="fixed bottom-10 right-4 z-50 space-y-1"></div>
+
+    <script src="static/js/nexusprop.js"></script>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const aest = new Date(now.toLocaleString('en-US', { timeZone: 'Australia/Sydney' }));
+            document.getElementById('clock').textContent = 
+                `${String(aest.getHours()).padStart(2,'0')}:${String(aest.getMinutes()).padStart(2,'0')}:${String(aest.getSeconds()).padStart(2,'0')} AEST`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        async function runDueDiligence() {
+            const text = document.getElementById('dd-text').value.trim();
+            if (!text) { showToast('Paste document text to analyse', 'error'); return; }
+            showToast('Running Due Diligence analysis...', 'info');
+            try {
+                const result = await api('POST', '/due-diligence/analyze', {
+                    document_text: text,
+                    document_type: document.getElementById('dd-doc-type').value,
+                    additional_context: document.getElementById('dd-concerns').value.trim() || null,
+                });
+                const rd = document.getElementById('dd-result');
+                rd.classList.remove('hidden');
+                const rc = {'LOW':'text-terminal-green','MEDIUM':'text-terminal-warn','HIGH':'text-terminal-danger','CRITICAL':'text-terminal-danger font-bold'}[result.risk_level]||'text-terminal-muted';
+                rd.innerHTML = `<div class="flex items-center justify-between mb-2"><span class="font-mono text-xs text-terminal-accent tracking-wider">RISK ASSESSMENT</span><span class="font-mono text-sm font-bold ${rc}">${result.risk_level}</span></div><div class="font-mono text-[10px] text-terminal-muted mb-2">${result.flags_found} red flags</div><div class="text-xs text-terminal-text whitespace-pre-wrap leading-relaxed">${result.analysis}</div>`;
+                showToast('Due Diligence report complete', 'success');
+            } catch(e) {}
+        }
+
+        async function sendNegotiationMessage() {
+            const msg = document.getElementById('neg-message').value.trim();
+            if (!msg) return;
+            const chat = document.getElementById('neg-chat');
+            if (chat.querySelector('.text-center')) chat.innerHTML = '';
+            chat.innerHTML += `<div class="flex justify-end"><div class="chat-msg-user rounded px-3 py-1.5 max-w-[70%]"><div class="text-[10px] text-terminal-info mb-0.5">YOU</div>${msg}</div></div>`;
+            document.getElementById('neg-message').value = '';
+            chat.scrollTop = chat.scrollHeight;
+            try {
+                const result = await api('POST', '/negotiation/coach', {
+                    buyer_message: msg,
+                    agent_name: document.getElementById('neg-agent-name').value || 'Unknown Agent',
+                    agency_name: document.getElementById('neg-agency').value || '',
+                    buyer_budget_max: parseFloat(document.getElementById('neg-budget').value) || 0,
+                });
+                chat.innerHTML += `<div class="flex justify-start"><div class="chat-msg-ai rounded px-3 py-1.5 max-w-[70%]"><div class="text-[10px] text-terminal-accent mb-0.5">SHADOW</div>${result.coaching}</div></div>`;
+                chat.scrollTop = chat.scrollHeight;
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>

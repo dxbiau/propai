@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Insights Australia — Your Digital Property Associate</title>
+    <meta name="description" content="Investment-grade real estate intelligence. 13 AI agents that scout, analyse, negotiate, and close — for less than one buyer's agent lunch.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pia: { 50:'#f0fdfa', 100:'#ccfbf1', 200:'#99f6e4', 300:'#5eead4', 400:'#2dd4bf', 500:'#00d4aa', 600:'#0d9488', 700:'#0f766e', 800:'#115e59', 900:'#134e4a', bg:'#0a0e17', panel:'#111827' },
+                    },
+                    fontFamily: {
+                        sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', '"SF Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        .gradient-text { background: linear-gradient(135deg, #00d4aa 0%, #3b82f6 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-glow { background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0,212,170,0.15), transparent); }
+        .card-glow:hover { box-shadow: 0 0 30px rgba(0,212,170,0.1); }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        .float { animation: float 6s ease-in-out infinite; }
+        .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); }
+    </style>
+</head>
+<body class="bg-pia-bg text-gray-300 font-sans antialiased">
+    <!-- NAV -->
+    <nav class="fixed top-0 w-full z-50 bg-pia-bg/80 backdrop-blur-xl border-b border-gray-800/50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-pia-500 rounded-lg flex items-center justify-center">
+                    <span class="text-pia-bg font-bold text-sm">PIA</span>
+                </div>
+                <span class="font-semibold text-white text-lg tracking-tight">Property Insights</span>
+                <span class="text-xs text-pia-500 font-mono bg-pia-500/10 px-2 py-0.5 rounded">AUSTRALIA</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8 text-sm">
+                <a href="#agents" class="hover:text-white transition">Agents</a>
+                <a href="#pricing" class="hover:text-white transition">Pricing</a>
+                <a href="#roi" class="hover:text-white transition">ROI</a>
+                <a href="/index.html" class="bg-pia-500 text-pia-bg px-5 py-2 rounded-lg font-semibold hover:bg-pia-400 transition">Launch Terminal</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="relative pt-32 pb-20 hero-glow">
+        <div class="max-w-5xl mx-auto px-6 text-center">
+            <div class="inline-block mb-6">
+                <span class="text-xs font-mono text-pia-500 border border-pia-500/30 bg-pia-500/5 px-3 py-1 rounded-full">POWERED BY CLAUDE OPUS 4.6 — 13 AGENTIC AI MODULES</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6">
+                The <span class="gradient-text">Bloomberg Terminal</span><br>for Australian Property
+            </h1>
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Investment-grade intelligence that scouts, analyses, negotiates, and closes — 
+                for <span class="text-white font-semibold">less than the cost of one buyer's agent lunch</span>.
+            </p>
+            <div class="flex items-center justify-center space-x-4">
+                <a href="/index.html" class="bg-pia-500 text-pia-bg px-8 py-3.5 rounded-lg font-bold text-lg hover:bg-pia-400 transition shadow-lg shadow-pia-500/20">
+                    Launch Terminal — Free
+                </a>
+                <a href="#pricing" class="border border-gray-700 text-white px-8 py-3.5 rounded-lg font-semibold hover:border-gray-500 transition">
+                    See Pricing
+                </a>
+            </div>
+            <p class="text-xs text-gray-600 mt-4 font-mono">No credit card required · Explorer tier is free forever</p>
+        </div>
+    </section>
+
+    <!-- AGENTS -->
+    <section id="agents" class="py-20 border-t border-gray-800/50">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-14">
+                <h2 class="text-3xl font-bold text-white mb-3">13 AI Agents. One Platform.</h2>
+                <p class="text-gray-400 max-w-xl mx-auto">Each agent is a specialist. Together, they replace an entire property acquisition team.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Scout -->
+                <div class="bg-pia-panel border border-gray-800 rounded-xl p-5 hover:border-pia-500/30 card-glow transition-all">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400 text-lg">🔍</div>
+                        <div>
+                            <h3 class="font-semibold text-white">Scout Agent</h3>
+                            <p class="text-xs text-gray-500 font-mono">HARVEST · DETECT · PRIORITISE</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400">Scrapes 100+ agencies. Detects shadow listings, price drops, and distressed properties before they hit the portals.</p>
+                </div>
+                <!-- Analyst -->
+                <div class="bg-pia-panel border border-gray-800 rounded-xl p-5 hover:border-pia-500/30 card-glow transition-all">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center text-green-400 text-lg">📊</div>
+                        <div>
+                            <h3 class="font-semibold text-white">Analyst Agent</h3>
+                            <p class="text-xs text-gray-500 font-mono">CAGR · LAND RATIO · ENTRY PRICE</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400">Investment-grade logic: street-level CAGR, land-to-asset ratios, infrastructure pipeline impact, cash-flow sensitivity analysis.</p>
+                </div>
+                <!-- Closer -->
+                <div class="bg-pia-panel border border-gray-800 rounded-xl p-5 hover:border-pia-500/30 card-glow transition-all">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400 text-lg">📝</div>
+                        <div>
+                            <h3 class="font-semibold text-white">Closer Agent</h3>
+                            <p class="text-xs text-gray-500 font-mono">CIALDINI · PSYCHOLOGY · OFFERS</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400">Generates psychologically-tuned offers using Cialdini's 6 principles. Cover letters that make agents call you back first.</p>
+                </div>
+                <!-- Concierge -->
+                <div class="bg-pia-panel border border-gray-800 rounded-xl p-5 hover:border-pia-500/30 card-glow transition-all">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center text-cyan-400 text-lg">🔔</div>
+                        <div>
+                            <h3 class="font-semibold text-white">Concierge Agent</h3>
+                            <p class="text-xs text-gray-500 font-mono">SMS · EMAIL · WHATSAPP</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400">Instant alerts when golden opportunities hit. WhatsApp summaries, SMS pings, email reports — all automated.</p>
+                </div>
+                <!-- Due Diligence Bot -->
+                <div class="bg-pia-panel border border-gray-800 rounded-xl p-5 hover:border-amber-500/30 card-glow transition-all relative">
+                    <div class="absolute top-3 right-3"><span class="text-[10px] font-mono bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded">$99/REPORT</span></div>
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-400 text-lg">⚠️</div>
+                        <div>
+                            <h3 class="font-semibold text-white">Due Diligence Bot</h3>
+                            <p class="text-xs text-gray-500 font-mono">SECTION 32 · CONTRACTS · RED FLAGS</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400">Reads Section 32s and Contracts of Sale. Flags covenants, easements, planning overlays, strata issues — saves $3K+ in legal reviews.</p>
+                </div>
+                <!-- Negotiation Shadow -->
+                <div class="bg-pia-panel border border-gray-800 rounded-xl p-5 hover:border-indigo-500/30 card-glow transition-all relative">
+                    <div class="absolute top-3 right-3"><span class="text-[10px] font-mono bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded">$500/MO</span></div>
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 bg-indigo-500/10 rounded-lg flex items-center justify-center text-indigo-400 text-lg">🗣️</div>
+                        <div>
+                            <h3 class="font-semibold text-white">Negotiation Shadow</h3>
+                            <p class="text-xs text-gray-500 font-mono">AGENT INTEL · LIVE COACHING</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400">WhatsApp-style live coaching during negotiations. Profiles agent sales history, detects tactics, suggests data-backed counter-moves.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI COMPARISON -->
+    <section id="roi" class="py-20 bg-pia-panel border-t border-b border-gray-800/50">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-14">
+                <h2 class="text-3xl font-bold text-white mb-3">The Numbers Don't Lie</h2>
+                <p class="text-gray-400 max-w-xl mx-auto">Compare your annual cost for the same capabilities.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- PIA -->
+                <div class="bg-pia-bg border-2 border-pia-500 rounded-2xl p-6 text-center relative float">
+                    <div class="popular-badge"><span class="bg-pia-500 text-pia-bg text-xs font-bold px-4 py-1 rounded-full">BEST VALUE</span></div>
+                    <div class="text-sm text-pia-500 font-mono mb-2 mt-2">PROPERTY INSIGHTS AUSTRALIA</div>
+                    <div class="text-5xl font-extrabold text-white mb-1">$2,388</div>
+                    <div class="text-sm text-gray-500 mb-6">/year (Investor Tier)</div>
+                    <ul class="text-sm text-gray-400 space-y-2 text-left mb-6">
+                        <li class="flex items-start"><span class="text-pia-500 mr-2 mt-0.5">✓</span>13 AI agents working 24/7</li>
+                        <li class="flex items-start"><span class="text-pia-500 mr-2 mt-0.5">✓</span>50 analyses per month</li>
+                        <li class="flex items-start"><span class="text-pia-500 mr-2 mt-0.5">✓</span>Shadow listing detection</li>
+                        <li class="flex items-start"><span class="text-pia-500 mr-2 mt-0.5">✓</span>Offer generation + WhatsApp</li>
+                        <li class="flex items-start"><span class="text-pia-500 mr-2 mt-0.5">✓</span>Investment-grade analysis</li>
+                        <li class="flex items-start"><span class="text-pia-500 mr-2 mt-0.5">✓</span>No per-deal commission</li>
+                    </ul>
+                    <div class="font-mono text-xs text-pia-500 bg-pia-500/10 rounded-lg py-2">SAVINGS: $9,612 – $57,612/yr</div>
+                </div>
+                <!-- Buyer's Agent -->
+                <div class="bg-pia-bg border border-gray-800 rounded-2xl p-6 text-center">
+                    <div class="text-sm text-gray-500 font-mono mb-2 mt-4">BUYER'S AGENT</div>
+                    <div class="text-5xl font-extrabold text-white mb-1">$12K–$30K</div>
+                    <div class="text-sm text-gray-500 mb-6">/deal (1.5–3% commission)</div>
+                    <ul class="text-sm text-gray-500 space-y-2 text-left mb-6">
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>One human, limited hours</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>Their network, not all listings</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>Potential conflicts of interest</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>Per-deal pricing adds up fast</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>2-3 deals/year = $24K-$90K</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>No technology stack included</li>
+                    </ul>
+                    <div class="font-mono text-xs text-red-400/80 bg-red-900/10 rounded-lg py-2">COST: $24K – $90K/yr (2-3 deals)</div>
+                </div>
+                <!-- Junior Hire -->
+                <div class="bg-pia-bg border border-gray-800 rounded-2xl p-6 text-center">
+                    <div class="text-sm text-gray-500 font-mono mb-2 mt-4">JUNIOR PROPERTY ANALYST</div>
+                    <div class="text-5xl font-extrabold text-white mb-1">$60K+</div>
+                    <div class="text-sm text-gray-500 mb-6">/year + super + benefits</div>
+                    <ul class="text-sm text-gray-500 space-y-2 text-left mb-6">
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>9-5 only, needs training</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>Manual spreadsheet analysis</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>Can't scrape 100+ agencies</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>No AI-powered negotiation</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>Leave, sick days, turnover</li>
+                        <li class="flex items-start"><span class="text-gray-600 mr-2 mt-0.5">—</span>Plus super, WC, tools = $80K+</li>
+                    </ul>
+                    <div class="font-mono text-xs text-red-400/80 bg-red-900/10 rounded-lg py-2">TRUE COST: $80K+ /year</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing" class="py-20">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-14">
+                <h2 class="text-3xl font-bold text-white mb-3">Simple, Transparent Pricing</h2>
+                <p class="text-gray-400 max-w-xl mx-auto">Start free, scale when you need to. No lock-in contracts.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Explorer -->
+                <div class="bg-pia-panel border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition">
+                    <div class="text-sm font-mono text-gray-500 mb-1">EXPLORER</div>
+                    <div class="text-4xl font-bold text-white mb-1">Free</div>
+                    <div class="text-sm text-gray-500 mb-5">Forever</div>
+                    <ul class="text-sm text-gray-400 space-y-2 mb-6">
+                        <li>✓ 5 property views/day</li>
+                        <li>✓ 3 analyses/month</li>
+                        <li>✓ Basic scoring</li>
+                        <li class="text-gray-600">✕ No shadow listings</li>
+                        <li class="text-gray-600">✕ No offer generation</li>
+                    </ul>
+                    <a href="/index.html" class="block text-center border border-gray-700 text-white py-2.5 rounded-lg font-medium hover:border-gray-500 transition">Get Started</a>
+                </div>
+                <!-- Investor -->
+                <div class="bg-pia-panel border-2 border-pia-500 rounded-2xl p-6 relative">
+                    <div class="popular-badge"><span class="bg-pia-500 text-pia-bg text-xs font-bold px-3 py-1 rounded-full">POPULAR</span></div>
+                    <div class="text-sm font-mono text-pia-500 mb-1 mt-1">INVESTOR</div>
+                    <div class="text-4xl font-bold text-white mb-1">$199<span class="text-lg text-gray-500">/mo</span></div>
+                    <div class="text-sm text-gray-500 mb-5">Billed monthly</div>
+                    <ul class="text-sm text-gray-400 space-y-2 mb-6">
+                        <li>✓ Unlimited property views</li>
+                        <li>✓ 50 analyses/month</li>
+                        <li>✓ Shadow listing access</li>
+                        <li>✓ First Look Premium</li>
+                        <li>✓ WhatsApp alerts</li>
+                        <li>✓ Offer generation</li>
+                    </ul>
+                    <a href="/index.html" class="block text-center bg-pia-500 text-pia-bg py-2.5 rounded-lg font-bold hover:bg-pia-400 transition">Start 14-day Trial</a>
+                </div>
+                <!-- Pro Sourcer -->
+                <div class="bg-pia-panel border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition">
+                    <div class="text-sm font-mono text-gray-500 mb-1">PRO SOURCER</div>
+                    <div class="text-4xl font-bold text-white mb-1">$499<span class="text-lg text-gray-500">/mo</span></div>
+                    <div class="text-sm text-gray-500 mb-5">For sourcers & builders</div>
+                    <ul class="text-sm text-gray-400 space-y-2 mb-6">
+                        <li>✓ Everything in Investor</li>
+                        <li>✓ Unlimited analyses</li>
+                        <li>✓ Bulk pipeline automation</li>
+                        <li>✓ API access</li>
+                        <li>✓ Multi-state coverage</li>
+                        <li>✓ Priority support</li>
+                    </ul>
+                    <a href="/index.html" class="block text-center border border-gray-700 text-white py-2.5 rounded-lg font-medium hover:border-gray-500 transition">Start Trial</a>
+                </div>
+                <!-- The Closer -->
+                <div class="bg-pia-panel border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition">
+                    <div class="text-sm font-mono text-amber-400 mb-1">THE CLOSER</div>
+                    <div class="text-4xl font-bold text-white mb-1">$2,500<span class="text-lg text-gray-500">/deal</span></div>
+                    <div class="text-sm text-gray-500 mb-5">Done-with-you</div>
+                    <ul class="text-sm text-gray-400 space-y-2 mb-6">
+                        <li>✓ Everything in Pro Sourcer</li>
+                        <li>✓ Dedicated analyst support</li>
+                        <li>✓ Custom acquisition strategy</li>
+                        <li>✓ Vendor negotiation playbook</li>
+                        <li>✓ Settlement coordination</li>
+                        <li>✓ Success-based pricing</li>
+                    </ul>
+                    <a href="mailto:closers@propertyinsightsaustralia.com.au" class="block text-center border border-amber-500/30 text-amber-400 py-2.5 rounded-lg font-medium hover:border-amber-500 transition">Contact Us</a>
+                </div>
+            </div>
+
+            <!-- Add-ons -->
+            <div class="mt-12 text-center">
+                <h3 class="text-xl font-semibold text-white mb-6">Premium Add-ons</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                    <div class="bg-pia-panel border border-gray-800 rounded-xl p-4">
+                        <div class="text-amber-400 font-mono text-sm mb-1">Due Diligence Bot</div>
+                        <div class="text-2xl font-bold text-white">$99<span class="text-sm text-gray-500">/report</span></div>
+                        <p class="text-xs text-gray-500 mt-1">Section 32 & Contract AI review</p>
+                    </div>
+                    <div class="bg-pia-panel border border-gray-800 rounded-xl p-4">
+                        <div class="text-indigo-400 font-mono text-sm mb-1">Negotiation Shadow</div>
+                        <div class="text-2xl font-bold text-white">$500<span class="text-sm text-gray-500">/month</span></div>
+                        <p class="text-xs text-gray-500 mt-1">Live AI coaching during negotiations</p>
+                    </div>
+                    <div class="bg-pia-panel border border-gray-800 rounded-xl p-4">
+                        <div class="text-pia-500 font-mono text-sm mb-1">First Look Premium</div>
+                        <div class="text-2xl font-bold text-white">$49<span class="text-sm text-gray-500">/month</span></div>
+                        <p class="text-xs text-gray-500 mt-1">24hr early access to new listings</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-20 border-t border-gray-800/50">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold text-white mb-4">Stop Overpaying for Property Intelligence</h2>
+            <p class="text-gray-400 mb-8 text-lg">Join investors who source smarter. Launch the terminal now — no credit card required.</p>
+            <a href="/index.html" class="inline-block bg-pia-500 text-pia-bg px-10 py-4 rounded-xl font-bold text-lg hover:bg-pia-400 transition shadow-lg shadow-pia-500/20">
+                Launch Terminal — Free Forever
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-gray-800/50 py-10">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                    <div class="w-6 h-6 bg-pia-500 rounded flex items-center justify-center">
+                        <span class="text-pia-bg font-bold text-[10px]">PIA</span>
+                    </div>
+                    <span class="text-sm text-gray-500">Property Insights Australia Pty Ltd</span>
+                </div>
+                <div class="flex items-center space-x-6 text-sm text-gray-600">
+                    <span class="font-mono text-xs">ABN: XX XXX XXX XXX</span>
+                    <span>|</span>
+                    <span>info@propertyinsightsaustralia.com.au</span>
+                </div>
+            </div>
+            <div class="mt-6 text-center text-xs text-gray-700">
+                <p>Property Insights Australia provides data-driven insights for educational purposes. Not financial, legal, or investment advice.</p>
+                <p class="mt-1">© 2025 Property Insights Australia Pty Ltd. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
