@@ -61,7 +61,7 @@ class NewsSummaryResponse(BaseModel):
 @router.post("", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """
-    Send a message to the Property Insights Australia chatbot.
+    Send a message to the Australian Property Associates chatbot.
 
     The chatbot combines trending real estate news with Australian
     market intelligence to provide contextual, data-driven responses.

@@ -1,5 +1,5 @@
 """
-Tests for Property Insights Australia tools - ROI Calculator, Bargain Scorer, Data Cleaner, Comps Engine.
+Tests for Australian Property Associates tools - ROI Calculator, Bargain Scorer, Data Cleaner, Comps Engine.
 
 Unit tests for the core computation layer.
 """

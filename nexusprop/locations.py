@@ -4,7 +4,7 @@ Australia Location Intelligence — All States & Territories.
 Deep suburb-level market data powering the Location Scout, Deal Analysis,
 and Value-Add Intelligence engines.
 
-PROPERTY INSIGHTS AUSTRALIA — National Coverage
+AUSTRALIAN PROPERTY ASSOCIATES — National Coverage
 
 Coverage: 8 states · 50+ regions · 400+ suburbs · 15 data points per suburb
 Including: auction clearance, days on market, vacancy, walkability,

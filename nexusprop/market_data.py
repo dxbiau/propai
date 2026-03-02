@@ -4,7 +4,7 @@ Australian Property Market Data — National Investment Intelligence.
 Comprehensive real-time market metrics covering all 8 states & territories.
 Data sourced from RBA, ABS, CoreLogic, SQM Research, APRA, and state revenue offices.
 
-PROPERTY INSIGHTS AUSTRALIA — Bloomberg Terminal for Australian Property
+AUSTRALIAN PROPERTY ASSOCIATES — Bloomberg Terminal for Australian Property
 
 Last Updated: June 2025 (auto-refreshes quarterly)
 """

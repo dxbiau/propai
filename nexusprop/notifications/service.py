@@ -128,7 +128,7 @@ class NotificationService:
 
         import httpx
 
-        subject = subject or "🏡 Property Insights Australia — New Investment Signal"
+        subject = subject or "🏡 Australian Property Associates — New Investment Signal"
 
         # SendGrid v3 API
         async with httpx.AsyncClient() as client:
@@ -140,7 +140,7 @@ class NotificationService:
                 },
                 json={
                     "personalizations": [{"to": [{"email": to}]}],
-                    "from": {"email": self.settings.from_email, "name": "Property Insights Australia"},
+                    "from": {"email": self.settings.from_email, "name": "Australian Property Associates"},
                     "subject": subject,
                     "content": [
                         {"type": "text/plain", "value": message},
@@ -176,7 +176,7 @@ class NotificationService:
 <body>
     <div class="container">
         <div class="header">
-            <h1>Property Insights Australia</h1>
+            <h1>Australian Property Associates</h1>
             <p>Your Digital Property Associate</p>
         </div>
         <div class="content">
@@ -185,7 +185,7 @@ class NotificationService:
             <a href="#" class="cta">View Full Analysis →</a>
         </div>
         <div class="footer">
-            Property Insights Australia Pty Ltd | Investment-Grade Real Estate Intelligence<br>
+            Australian Property Associates Pty Ltd | Investment-Grade Real Estate Intelligence<br>
             <a href="#">Manage Preferences</a> | <a href="#">Unsubscribe</a>
         </div>
     </div>

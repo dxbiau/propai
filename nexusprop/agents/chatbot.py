@@ -91,7 +91,7 @@ AU_KEYWORDS = [
 ]
 
 
-CHATBOT_SYSTEM_PROMPT = """You are the Property Insights Australia Chatbot — a friendly, knowledgeable real estate market assistant covering all 8 Australian states and territories.
+CHATBOT_SYSTEM_PROMPT = """You are the Australian Property Associates Chatbot — a friendly, knowledgeable real estate market assistant covering all 8 Australian states and territories.
 
 PERSONALITY:
 - Warm, professional, and data-driven
@@ -456,7 +456,7 @@ class ChatbotAgent(BaseAgent):
 
         # Platform context
         parts.append(
-            "PLATFORM CONTEXT: You are part of Property Insights Melbourne — "
+            "PLATFORM CONTEXT: You are part of Australian Property Associates — "
             "a Bloomberg Terminal-style dashboard with 12 AI agents covering: "
             "property scouting, deal analysis, offer generation, investor profiling, "
             "deal structuring, negotiation coaching, due diligence, portfolio mentoring, "

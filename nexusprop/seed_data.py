@@ -1,5 +1,5 @@
 """
-Seed data — Property Insights Australia — National Coverage.
+Seed data — Australian Property Associates — National Coverage.
 
 80+ realistic property listings and pre-analysed deals across all 8 states.
 Covers all capital cities + key regional centres nationwide.

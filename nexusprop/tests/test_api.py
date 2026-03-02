@@ -1,5 +1,5 @@
 """
-Tests for the Property Insights Australia FastAPI application.
+Tests for the Australian Property Associates FastAPI application.
 
 Tests cover API endpoints for properties, deals, offers, and health checks.
 """
@@ -39,7 +39,7 @@ class TestHealthEndpoints:
         response = await client.get("/")
         assert response.status_code == 200
         data = response.json()
-        assert data["name"] == "Property Insights Australia"
+        assert data["name"] == "Australian Property Associates"
         assert "Digital Property Associate" in data["tagline"]
 
     @pytest.mark.anyio

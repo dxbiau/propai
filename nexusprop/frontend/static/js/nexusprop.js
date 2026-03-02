@@ -1,5 +1,5 @@
 /**
- * Property Insights Australia — Bloomberg Terminal Dashboard JS
+ * Australian Property Associates — Bloomberg Terminal Dashboard JS
  *
  * All Australia — 8 States & Territories
  * Powers: Deals, Properties, Offers, Pipeline, Profiler, Mentor,
@@ -129,7 +129,7 @@ function propPlaceholder(type, suburb, size, imageUrl) {
    TAB SWITCHING
    ───────────────────────────────────────────────────────────────── */
 
-const TAB_IDS = ['deals','properties','offers','pipeline','profiler','mentor','diligence','negotiate','qa','photos'];
+const TAB_IDS = ['deals','properties','offers','pipeline','profiler','mentor','diligence','negotiate','qa','photos','research'];
 
 function switchTab(name) {
     TAB_IDS.forEach(t => {
@@ -1742,5 +1742,271 @@ async function enhancePropertyPhoto(imageUrl) {
         }
     } catch (e) {
         showToast('Photo loaded for enhancement — select preset and enhance', 'info');
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   PERSONAL RESEARCH — PASTE A LINK, GET EVERYTHING
+   ───────────────────────────────────────────────────────────────── */
+
+async function parseResearchUrl() {
+    const url = ($('research-url') || {}).value || '';
+    if (!url || url.length < 10) return;
+    try {
+        const result = await api('POST', `/research/parse-url?url=${encodeURIComponent(url)}`);
+        const box = $('research-url-parsed');
+        if (box && result) {
+            box.classList.remove('hidden');
+            let html = `<span class="text-terminal-accent">SOURCE:</span> ${result.source || 'Unknown'}`;
+            if (result.suburb_hint) {
+                html += ` | <span class="text-terminal-accent">SUBURB:</span> ${result.suburb_hint}`;
+                const subField = $('research-suburb');
+                if (subField) subField.value = result.suburb_hint;
+            }
+            if (result.state_hint) {
+                html += ` | <span class="text-terminal-accent">STATE:</span> ${result.state_hint}`;
+                const stField = $('research-state');
+                if (stField) stField.value = result.state_hint;
+            }
+            box.innerHTML = html;
+        }
+    } catch (e) {
+        // Silent — URL parsing is best-effort
+    }
+}
+
+async function executeResearch() {
+    const url = ($('research-url') || {}).value || '';
+    const suburb = ($('research-suburb') || {}).value || '';
+    const state = ($('research-state') || {}).value || 'VIC';
+    const postcode = ($('research-postcode') || {}).value || '';
+    const propType = ($('research-proptype') || {}).value || 'house';
+    const isPrivate = ($('research-private') || {}).checked || false;
+    const floodZone = ($('research-flood') || {}).checked || false;
+    const bushfireZone = ($('research-bushfire') || {}).checked || false;
+
+    if (!url && !suburb) {
+        showToast('Paste a URL or enter a suburb name', 'error');
+        return;
+    }
+
+    showToast('Researching property — climate risk, nearby suburbs, market data...', 'info');
+    const resultsDiv = $('research-results');
+    if (resultsDiv) resultsDiv.innerHTML = '<div class="text-center text-terminal-accent py-10 animate-pulse"><div class="text-2xl mb-2">🔍</div><div class="text-[10px]">Analysing property, climate risk, and market data...</div></div>';
+
+    try {
+        const result = await api('POST', '/research/research', {
+            url,
+            suburb: suburb || null,
+            state,
+            postcode: postcode || null,
+            property_type: propType,
+            private: isPrivate,
+            include_climate: true,
+            include_nearby: true,
+            flood_zone: floodZone || null,
+            bushfire_zone: bushfireZone || null,
+        });
+
+        if (result && result.success) {
+            renderResearchResults(result.data);
+        } else {
+            if (resultsDiv) resultsDiv.innerHTML = `<div class="text-terminal-danger text-xs font-mono py-4">Research failed: ${result?.error || 'Unknown error'}</div>`;
+        }
+    } catch (e) {
+        if (resultsDiv) resultsDiv.innerHTML = `<div class="text-terminal-danger text-xs font-mono py-4">Error: ${e.message || 'Network error'}</div>`;
+    }
+}
+
+function renderResearchResults(data) {
+    if (!data) return;
+
+    // Main results panel
+    const resultsDiv = $('research-results');
+    if (resultsDiv) {
+        let html = '';
+
+        // URL Analysis
+        if (data.url) {
+            const src = data.url_analysis?.source || 'Unknown';
+            html += `<div class="bg-terminal-bg rounded border border-terminal-border p-2">
+                <div class="text-[10px] text-terminal-muted mb-1">SOURCE</div>
+                <div class="text-terminal-accent">${src}</div>
+                <div class="text-[9px] text-terminal-dim truncate mt-0.5">${data.url}</div>
+            </div>`;
+        }
+
+        // Location
+        html += `<div class="bg-terminal-bg rounded border border-terminal-border p-2">
+            <div class="text-[10px] text-terminal-muted mb-1">LOCATION</div>
+            <div class="text-terminal-text font-bold">${data.suburb}, ${data.state} ${data.postcode || ''}</div>
+            <div class="text-[9px] text-terminal-dim">${data.private ? '🔒 Private Research' : '🌐 Public'} | Research ID: ${(data.research_id || '').slice(0,8)}...</div>
+        </div>`;
+
+        // Market Data
+        if (data.market_data) {
+            const md = data.market_data;
+            html += `<div class="bg-terminal-bg rounded border border-terminal-border p-2">
+                <div class="text-[10px] text-terminal-muted mb-1">MARKET DATA (${data.state})</div>
+                <div class="grid grid-cols-2 gap-1 text-[10px]">
+                    <div><span class="text-terminal-muted">Median House:</span> <span class="text-terminal-green">$${(md.state_median_house || 0).toLocaleString()}</span></div>
+                    <div><span class="text-terminal-muted">Median Unit:</span> <span class="text-terminal-green">$${(md.state_median_unit || 0).toLocaleString()}</span></div>
+                    <div><span class="text-terminal-muted">Growth:</span> <span class="${(md.annual_growth || 0) >= 0 ? 'text-terminal-green' : 'text-terminal-danger'}">${md.annual_growth || 0}%</span></div>
+                    <div><span class="text-terminal-muted">Yield:</span> <span class="text-terminal-accent">${md.gross_yield || 0}%</span></div>
+                    <div><span class="text-terminal-muted">Vacancy:</span> ${md.vacancy_rate || 0}%</div>
+                    <div><span class="text-terminal-muted">Days on Market:</span> ${md.days_on_market || 'N/A'}</div>
+                    <div><span class="text-terminal-muted">Auction Clearance:</span> ${md.auction_clearance || 0}%</div>
+                    <div><span class="text-terminal-muted">Rent/wk:</span> $${md.rental_house_weekly || 0}</div>
+                </div>
+            </div>`;
+        }
+
+        resultsDiv.innerHTML = html;
+    }
+
+    // Climate Risk Panel
+    renderClimateRisk(data.climate_risk);
+
+    // Nearby Suburbs Panel
+    renderNearbySuburbs(data.nearby_properties, data.climate_comparison);
+
+    // AI Analysis Panel
+    const aiDiv = $('research-ai');
+    if (aiDiv && data.ai_analysis) {
+        aiDiv.innerHTML = `<div class="whitespace-pre-wrap leading-relaxed">${data.ai_analysis}</div>`;
+    }
+
+    showToast('Research complete!', 'success');
+}
+
+function renderClimateRisk(climate) {
+    const div = $('research-climate');
+    if (!div || !climate) return;
+
+    const riskColors = {
+        'EXTREME': 'text-red-400 bg-red-400/10 border-red-400/30',
+        'HIGH': 'text-orange-400 bg-orange-400/10 border-orange-400/30',
+        'MODERATE': 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
+        'LOW': 'text-green-400 bg-green-400/10 border-green-400/30',
+        'MINIMAL': 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
+        'UNASSESSED': 'text-gray-400 bg-gray-400/10 border-gray-400/30',
+    };
+    const riskClass = riskColors[climate.overall_risk] || riskColors['UNASSESSED'];
+
+    let html = `<div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] text-terminal-muted">OVERALL RISK</span>
+        <span class="text-xs font-bold px-2 py-0.5 rounded border ${riskClass}">${climate.overall_risk}</span>
+    </div>`;
+
+    if (climate.climate_risk_score !== undefined) {
+        const score = climate.climate_risk_score;
+        const barColor = score >= 70 ? 'bg-red-500' : score >= 40 ? 'bg-yellow-500' : 'bg-green-500';
+        html += `<div class="mb-2">
+            <div class="flex justify-between text-[9px] text-terminal-muted mb-0.5"><span>Risk Score</span><span>${score}/100</span></div>
+            <div class="w-full bg-terminal-bg rounded-full h-1.5"><div class="${barColor} h-1.5 rounded-full" style="width:${score}%"></div></div>
+        </div>`;
+    }
+
+    // Hazards
+    if (climate.hazards && Object.keys(climate.hazards).length > 0) {
+        html += '<div class="text-[10px] text-terminal-muted mb-1 mt-2">HAZARDS</div>';
+        const hazardIcons = { flood: '🌊', bushfire: '🔥', coastal_erosion: '🏖️', cyclone: '🌪️', extreme_heat: '🌡️', storm_surge: '🌊', drought: '☀️', hail: '🧊' };
+        for (const [hazard, info] of Object.entries(climate.hazards)) {
+            const icon = hazardIcons[hazard] || '⚠️';
+            const hRiskClass = riskColors[info.level] || '';
+            html += `<div class="bg-terminal-bg/50 rounded p-1.5 mb-1 border border-terminal-border/50">
+                <div class="flex items-center justify-between">
+                    <span>${icon} ${hazard.replace('_', ' ').toUpperCase()}</span>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded border ${hRiskClass}">${info.level}</span>
+                </div>
+                <div class="text-[9px] text-terminal-dim mt-0.5">${(info.detail || '').slice(0, 120)}${info.detail?.length > 120 ? '...' : ''}</div>
+            </div>`;
+        }
+    }
+
+    // Insurance
+    if (climate.insurance_estimate) {
+        html += `<div class="mt-2 bg-terminal-bg/50 rounded p-1.5 border border-terminal-border/50">
+            <div class="text-[10px] text-terminal-muted">ESTIMATED INSURANCE</div>
+            <div class="text-terminal-accent font-bold">${climate.insurance_estimate}</div>
+            <div class="text-[9px] text-terminal-dim">${climate.insurance_rating || ''}</div>
+        </div>`;
+    }
+
+    // Investment Note
+    if (climate.investment_note) {
+        html += `<div class="mt-2 text-[9px] text-terminal-dim italic">${climate.investment_note}</div>`;
+    }
+
+    div.innerHTML = html;
+}
+
+function renderNearbySuburbs(nearby, comparison) {
+    const div = $('research-nearby');
+    if (!div) return;
+
+    if (!nearby || nearby.length === 0) {
+        div.innerHTML = '<div class="text-center text-terminal-muted py-4 text-[10px]">No nearby suburbs found in database</div>';
+        return;
+    }
+
+    let html = '';
+
+    // Comparison summary
+    if (comparison) {
+        html += `<div class="bg-terminal-bg/50 rounded p-2 border border-terminal-accent/20 mb-2">
+            <div class="text-[9px] text-terminal-accent">CLIMATE COMPARISON</div>
+            <div class="text-[9px] text-terminal-dim">Safest: <span class="text-terminal-green">${comparison.safest || 'N/A'}</span> | Riskiest: <span class="text-terminal-danger">${comparison.riskiest || 'N/A'}</span></div>
+        </div>`;
+    }
+
+    for (const n of nearby) {
+        html += `<div class="flex items-center justify-between bg-terminal-bg/50 rounded px-2 py-1 border border-terminal-border/30 hover:border-terminal-accent/30 cursor-pointer transition" onclick="researchNearbySuburb('${n.suburb}','${n.state}','${n.postcode}')">
+            <div>
+                <span class="text-terminal-text">${n.suburb}</span>
+                <span class="text-terminal-muted text-[9px]"> ${n.postcode} ${n.region || ''}</span>
+            </div>
+            <div class="text-right text-[9px]">
+                <div class="text-terminal-green">$${(n.median || 0).toLocaleString()}</div>
+                <div class="${(n.growth || 0) >= 0 ? 'text-terminal-green' : 'text-terminal-danger'}">${n.growth || 0}%</div>
+            </div>
+        </div>`;
+    }
+
+    div.innerHTML = html;
+}
+
+function researchNearbySuburb(suburb, state, postcode) {
+    const subField = $('research-suburb');
+    const stField = $('research-state');
+    const pcField = $('research-postcode');
+    if (subField) subField.value = suburb;
+    if (stField) stField.value = state;
+    if (pcField) pcField.value = postcode;
+    executeResearch();
+}
+
+async function executeClimateOnly() {
+    const suburb = ($('research-suburb') || {}).value || '';
+    const state = ($('research-state') || {}).value || 'VIC';
+    if (!suburb) {
+        showToast('Enter a suburb name first', 'error');
+        return;
+    }
+    showToast('Loading climate risk profile...', 'info');
+    try {
+        const result = await api('GET', `/research/climate/${encodeURIComponent(suburb)}`);
+        if (result) {
+            // Enhance with assessment data
+            const floodZone = ($('research-flood') || {}).checked || false;
+            const bushfireZone = ($('research-bushfire') || {}).checked || false;
+            const propType = ($('research-proptype') || {}).value || 'house';
+
+            const assessment = await api('POST', `/research/climate/assess?suburb=${encodeURIComponent(suburb)}&state=${state}&property_type=${propType}${floodZone ? '&flood_zone=true' : ''}${bushfireZone ? '&bushfire_zone=true' : ''}`);
+            renderClimateRisk(assessment || result);
+            showToast('Climate risk profile loaded', 'success');
+        }
+    } catch (e) {
+        showToast('Climate data unavailable for this suburb', 'warn');
     }
 }

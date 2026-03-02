@@ -1,1 +1,1 @@
-"""Property Insights Australia test suite."""
+"""Australian Property Associates test suite."""

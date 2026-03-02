@@ -190,19 +190,19 @@ async def twilio_incoming(request: Request):
 
     if body == "DEALS":
         response_text = (
-            "🏡 Property Insights Australia — Latest Golden Opportunities\n\n"
+            "🏡 Australian Property Associates — Latest Golden Opportunities\n\n"
             "No active golden opportunities right now.\n"
             "We'll notify you the moment one appears!\n\n"
             "Reply HELP for commands."
         )
     elif body == "STOP":
         response_text = (
-            "You've been unsubscribed from Property Insights Australia alerts.\n"
+            "You've been unsubscribed from Australian Property Associates alerts.\n"
             "Reply START to re-subscribe."
         )
     elif body == "HELP":
         response_text = (
-            "🏡 Property Insights Australia Commands:\n\n"
+            "🏡 Australian Property Associates Commands:\n\n"
             "DEALS → Latest golden opportunities\n"
             "STOP → Unsubscribe from alerts\n"
             "<suburb> → Search deals in a suburb\n\n"

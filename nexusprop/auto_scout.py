@@ -1,5 +1,5 @@
 """
-Auto-Scout Engine — Property Insights Australia.
+Auto-Scout Engine — Australian Property Associates.
 
 Background task that continuously discovers new properties across
 all Australian states every 15-30 minutes.

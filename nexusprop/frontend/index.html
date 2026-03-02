@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Insights Australia — Terminal</title>
+    <title>Australian Property Associates - Terminal</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -176,9 +176,9 @@
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-6 h-6 bg-terminal-accent rounded flex items-center justify-center">
-                    <span class="text-terminal-bg font-bold text-xs">PIM</span>
+                    <span class="text-terminal-bg font-bold text-xs">APA</span>
                 </div>
-                <span class="font-semibold text-sm text-terminal-bright tracking-tight">PROPERTY INSIGHTS</span>
+                <span class="font-semibold text-sm text-terminal-bright tracking-tight">AUSTRALIAN PROPERTY ASSOCIATES</span>
                 <span class="text-[10px] text-terminal-accent font-mono bg-terminal-accent/10 px-1.5 py-0.5 rounded">ALL AUSTRALIA</span>
             </div>
             <span class="text-terminal-muted text-xs">|</span>
@@ -278,6 +278,7 @@
         <button onclick="switchTab('negotiate')" id="tab-negotiate" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">NEGOTIATION</button>
         <button onclick="switchTab('qa')" id="tab-qa" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🔬 QA ENGINE</button>
         <button onclick="switchTab('photos')" id="tab-photos" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">📸 PHOTOS</button>
+        <button onclick="switchTab('research')" id="tab-research" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🔍 RESEARCH</button>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -651,17 +652,131 @@
                 </div>
             </div>
         </div>
+        <!-- ═══ PERSONAL RESEARCH ═══ -->
+        <div id="panel-research" class="tab-panel hidden">
+            <div class="grid grid-cols-3 gap-3">
+                <!-- LEFT: Input Panel -->
+                <div class="bg-terminal-panel rounded border border-terminal-border p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="font-mono text-xs text-terminal-accent tracking-wider">🔍 PERSONAL RESEARCH</div>
+                        <span class="text-[10px] font-mono text-terminal-green bg-terminal-green/10 px-2 py-0.5 rounded">APA</span>
+                    </div>
+                    <div class="text-[10px] text-terminal-muted mb-3">Paste any property URL (Domain, REA, AllHomes) or enter suburb details. Get instant climate risk profiling, nearby properties, and market intelligence.</div>
+
+                    <div class="space-y-2">
+                        <div>
+                            <label class="block text-[10px] text-terminal-muted font-mono mb-1">PROPERTY URL</label>
+                            <input type="text" id="research-url" placeholder="https://www.domain.com.au/..." class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full" onpaste="setTimeout(()=>parseResearchUrl(),100)">
+                        </div>
+                        <div id="research-url-parsed" class="hidden bg-terminal-bg/50 rounded border border-terminal-accent/20 p-2 text-[10px] font-mono text-terminal-dim"></div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-terminal-muted font-mono mb-1">SUBURB</label>
+                                <input type="text" id="research-suburb" placeholder="e.g. Footscray" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-terminal-muted font-mono mb-1">STATE</label>
+                                <select id="research-state" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                                    <option value="NSW">NSW</option><option value="VIC" selected>VIC</option><option value="QLD">QLD</option>
+                                    <option value="SA">SA</option><option value="WA">WA</option><option value="TAS">TAS</option>
+                                    <option value="NT">NT</option><option value="ACT">ACT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-terminal-muted font-mono mb-1">POSTCODE</label>
+                                <input type="text" id="research-postcode" placeholder="3011" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full" maxlength="4">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-terminal-muted font-mono mb-1">PROPERTY TYPE</label>
+                                <select id="research-proptype" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                                    <option value="house">House</option><option value="unit">Unit</option><option value="apartment">Apartment</option>
+                                    <option value="townhouse">Townhouse</option><option value="land">Land</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Climate Flags -->
+                        <div class="bg-terminal-bg/50 rounded border border-terminal-border/50 p-2">
+                            <div class="text-[10px] text-terminal-muted font-mono mb-1.5 tracking-wider">CLIMATE FLAGS</div>
+                            <div class="flex flex-col space-y-1">
+                                <label class="flex items-center space-x-2 text-[10px] font-mono text-terminal-dim">
+                                    <input type="checkbox" id="research-flood" class="rounded bg-terminal-panel border-terminal-border accent-terminal-danger">
+                                    <span>🌊 Known Flood Zone</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-[10px] font-mono text-terminal-dim">
+                                    <input type="checkbox" id="research-bushfire" class="rounded bg-terminal-panel border-terminal-border accent-terminal-warn">
+                                    <span>🔥 Bushfire Prone Area</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <label class="flex items-center space-x-2 text-[10px] font-mono text-terminal-dim">
+                            <input type="checkbox" id="research-private" class="rounded bg-terminal-panel border-terminal-border accent-terminal-accent">
+                            <span>🔒 Keep Private (don't add to main database)</span>
+                        </label>
+
+                        <button onclick="executeResearch()" class="bg-terminal-accent text-terminal-bg w-full py-2.5 rounded font-mono text-xs font-bold hover:bg-terminal-accent/90 transition">🔍 RESEARCH PROPERTY</button>
+                        <button onclick="executeClimateOnly()" class="bg-terminal-danger/10 hover:bg-terminal-danger/20 text-terminal-danger px-4 py-1.5 rounded text-[10px] font-mono font-medium transition border border-terminal-danger/30 w-full">🌊 CLIMATE RISK ONLY</button>
+                    </div>
+                </div>
+
+                <!-- MIDDLE: Results -->
+                <div class="bg-terminal-panel rounded border border-terminal-border p-4">
+                    <div class="font-mono text-xs text-terminal-accent tracking-wider mb-3">RESEARCH RESULTS</div>
+                    <div id="research-results" class="space-y-3 text-xs font-mono overflow-y-auto max-h-[65vh]">
+                        <div class="text-center text-terminal-muted py-10">
+                            <div class="text-3xl mb-2">🔍</div>
+                            <div class="text-[10px]">Paste a property URL or enter suburb details<br>to start your research</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Climate + Nearby -->
+                <div class="space-y-3">
+                    <!-- Climate Risk Card -->
+                    <div class="bg-terminal-panel rounded border border-terminal-border p-4">
+                        <div class="font-mono text-xs text-terminal-accent tracking-wider mb-3">🌡️ CLIMATE RISK PROFILE</div>
+                        <div id="research-climate" class="text-xs font-mono space-y-2">
+                            <div class="text-center text-terminal-muted py-4">
+                                <div class="text-[10px]">Climate risk data will appear after research</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nearby Suburbs Card -->
+                    <div class="bg-terminal-panel rounded border border-terminal-border p-4">
+                        <div class="font-mono text-xs text-terminal-accent tracking-wider mb-3">📍 NEARBY SUBURBS</div>
+                        <div id="research-nearby" class="text-xs font-mono space-y-1 max-h-48 overflow-y-auto">
+                            <div class="text-center text-terminal-muted py-4">
+                                <div class="text-[10px]">Nearby properties will appear after research</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Analysis Card -->
+                    <div class="bg-terminal-panel rounded border border-terminal-border p-4">
+                        <div class="font-mono text-xs text-terminal-accent tracking-wider mb-2">🧠 AI ANALYSIS</div>
+                        <div id="research-ai" class="text-[10px] font-mono text-terminal-dim leading-relaxed max-h-40 overflow-y-auto">
+                            AI-enriched investment analysis will appear here.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- STATUS BAR -->
     <footer class="status-bar border-t border-white/[0.06] px-4 py-1.5 flex items-center justify-between flex-shrink-0">
         <div class="flex items-center space-x-4 text-[10px] font-mono text-terminal-muted">
-            <span>PIA v5.0.0</span><span>|</span><span id="status-text">READY</span><span>|</span><span>propertyinsights.com.au</span>
+            <span>APA v5.1.0</span><span>|</span><span id="status-text">READY</span><span>|</span><span>australianpropertyassociates.com.au</span>
         </div>
         <div class="flex items-center space-x-4 text-[10px] font-mono text-terminal-muted">
             <span id="db-status" class="text-terminal-green">● SQLite PERSISTED</span><span>|</span>
             <span id="scout-status" class="text-terminal-green">● AUTO-SCOUT ACTIVE</span><span>|</span>
-            <span>14 AGENTS + VALUE-ADD ENGINE</span><span>|</span>
+            <span>15 AGENTS + CLIMATE RISK + VALUE-ADD ENGINE</span><span>|</span>
             <span id="api-status" class="text-terminal-green">● API CONNECTED</span><span>|</span><span id="sub-tier" class="text-terminal-accent">EXPLORER</span>
         </div>
     </footer>

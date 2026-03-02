@@ -1,6 +1,6 @@
-"""Property Insights Australia agents package — the full agentic stack.
+"""Australian Property Associates agents package - the full agentic stack.
 
-14 agents forming a self-governing AI ecosystem:
+15 agents forming a self-governing AI ecosystem:
 
 Core pipeline:
   Profiler → Scout → Analyst → LiveComps → Stacker →
@@ -27,6 +27,7 @@ from nexusprop.agents.negotiation_shadow import NegotiationShadow
 from nexusprop.agents.photo_enhancer import PhotoEnhancementAgent
 from nexusprop.agents.chatbot import ChatbotAgent
 from nexusprop.agents.state_market import StateMarketAgent
+from nexusprop.agents.personal_research import PersonalResearchAgent
 
 __all__ = [
     # Core pipeline agents
@@ -45,4 +46,5 @@ __all__ = [
     "PhotoEnhancementAgent",
     "ChatbotAgent",
     "StateMarketAgent",
+    "PersonalResearchAgent",
 ]

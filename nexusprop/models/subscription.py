@@ -1,5 +1,5 @@
 """
-Subscription & Pricing Tiers — Property Insights Australia.
+Subscription & Pricing Tiers — Australian Property Associates.
 
 Defines the 4-tier pricing model plus premium add-ons:
   • Explorer (Free)       — Basic suburb data, 3 views/day
@@ -24,7 +24,7 @@ from pydantic import BaseModel, Field
 
 
 class SubscriptionTier(str, Enum):
-    """Pricing tiers for Property Insights Australia."""
+    """Pricing tiers for Australian Property Associates."""
     EXPLORER = "explorer"           # Free
     INVESTOR = "investor"           # $199/mo
     PRO_SOURCER = "pro_sourcer"     # $499/mo

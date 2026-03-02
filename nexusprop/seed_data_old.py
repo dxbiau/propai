@@ -1,5 +1,5 @@
 """
-Seed data for Property Insights Australia.
+Seed data for Australian Property Associates.
 
 Realistic Australian property listings and pre-analysed deals, so the
 Bloomberg Terminal dashboard shows data immediately on a fresh start.

@@ -1,5 +1,5 @@
 """
-Pytest configuration and shared fixtures for Property Insights Australia tests.
+Pytest configuration and shared fixtures for Australian Property Associates tests.
 """
 
 from __future__ import annotations

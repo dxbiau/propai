@@ -1,6 +1,6 @@
-"""Property Insights Australia API - FastAPI Application.
+"""Australian Property Associates API - FastAPI Application.
 
-The RESTful gateway to the Property Insights Agentic Intelligence Stack.
+The RESTful gateway to the APA Agentic Intelligence Stack.
 Exposes property search, deal analysis, offer generation, and pipeline
 orchestration endpoints.
 
@@ -42,6 +42,7 @@ from nexusprop.api.routes.photos import router as photos_router
 from nexusprop.api.routes.recommendations import router as recommendations_router
 from nexusprop.api.routes.chatbot import router as chatbot_router
 from nexusprop.api.routes.market import router as market_router
+from nexusprop.api.routes.research import router as research_router
 from nexusprop.api.middleware import RequestLoggingMiddleware, RateLimitMiddleware
 
 logger = structlog.get_logger(__name__)
@@ -160,12 +161,13 @@ async def lifespan(app: FastAPI):
 # FastAPI App
 # ---------------------------------------------------------------------------
 app = FastAPI(
-    title="Property Insights Australia API",
+    title="Australian Property Associates API",
     description=(
-        "Your Digital Property Associate — Investment-Grade Real Estate Intelligence. "
-        "The Bloomberg Terminal for Australian Property — All 8 States & Territories."
+        "Your Digital Property Associate - Investment-Grade Real Estate Intelligence. "
+        "The Bloomberg Terminal for Australian Property - All 8 States & Territories. "
+        "15 AI Agents | Climate Risk Profiling | Personal Research."
     ),
-    version="4.0.0",
+    version="5.1.0",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -176,7 +178,7 @@ app = FastAPI(
 # ---------------------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if not settings.is_production else ["https://propertyinsights.com.au"],
+    allow_origins=["*"] if not settings.is_production else ["https://australianpropertyassociates.com.au"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -202,6 +204,7 @@ app.include_router(photos_router, prefix="/api/v1/photos", tags=["Photo Enhancem
 app.include_router(recommendations_router, prefix="/api/v1/recommendations", tags=["Competitive Edge"])
 app.include_router(chatbot_router, prefix="/api/v1/chat", tags=["Chatbot & News"])
 app.include_router(market_router, prefix="/api/v1/market", tags=["Market Data"])
+app.include_router(research_router, prefix="/api/v1/research", tags=["Personal Research"])
 
 
 # ---------------------------------------------------------------------------
@@ -211,9 +214,9 @@ app.include_router(market_router, prefix="/api/v1/market", tags=["Market Data"])
 async def root():
     """API root — branding and version info."""
     return {
-        "name": "Property Insights Australia",
-        "tagline": "Your Digital Property Associate — All of Australia",
-        "version": "5.0.0",
+        "name": "Australian Property Associates",
+        "tagline": "Your Digital Property Associate - All of Australia",
+        "version": "5.1.0",
         "docs": "/docs",
     }
 

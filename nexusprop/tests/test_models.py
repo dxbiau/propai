@@ -1,5 +1,5 @@
 """
-Tests for Property Insights Australia data models - Property, Deal, Offer, User.
+Tests for Australian Property Associates data models - Property, Deal, Offer, User.
 
 Covers validation, computed properties, enums, and edge cases.
 """

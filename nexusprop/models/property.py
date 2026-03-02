@@ -1,5 +1,5 @@
 """
-Property model — the core entity in Property Insights Australia.
+Property model — the core entity in Australian Property Associates.
 
 Every scraped listing, shadow listing, and off-market signal becomes a Property.
 """
@@ -117,7 +117,7 @@ DISTRESS_KEYWORDS: list[str] = [
 
 
 class Property(BaseModel):
-    """Core property entity — every listing in the Property Insights Australia system."""
+    """Core property entity — every listing in the Australian Property Associates system."""
 
     id: UUID = Field(default_factory=uuid4)
     created_at: datetime = Field(default_factory=datetime.utcnow)

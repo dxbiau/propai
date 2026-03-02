@@ -1,5 +1,5 @@
 """
-Property Insights Australia Orchestrator — the conductor of the self-governing AI ecosystem.
+Australian Property Associates Orchestrator — the conductor of the self-governing AI ecosystem.
 
 Full pipeline: Profiler → Scout → Analyst → Stacker → Closer → Concierge → Mentor → QA
 
@@ -98,7 +98,7 @@ class PipelineResult:
 
 class Orchestrator:
     """
-    The Orchestrator — conducts the full Property Insights Australia 9-agent pipeline.
+    The Orchestrator — conducts the full Australian Property Associates 9-agent pipeline.
 
     Pipeline stages (conditional routing):
     1. PROFILER  → Build/update investor profile for personalization
@@ -484,7 +484,7 @@ async def main():
     console = Console()
 
     console.print(Panel.fit(
-        "[bold cyan]Property Insights Australia[/bold cyan] — Your Digital Property Associate\n"
+        "[bold cyan]Australian Property Associates[/bold cyan] — Your Digital Property Associate\n"
         "[dim]Investment-Grade Real Estate Intelligence[/dim]",
         border_style="cyan",
     ))

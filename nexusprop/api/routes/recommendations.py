@@ -1,5 +1,5 @@
 """
-Competitive Edge & Strategic Recommendations — Property Insights Australia.
+Competitive Edge & Strategic Recommendations — Australian Property Associates.
 
 Answers the question: "Why should someone leave our competitors for ONLY us?"
 
@@ -282,7 +282,7 @@ async def get_recommendations():
         total=len(RECOMMENDATIONS),
         implemented=len(implemented),
         competitive_summary=(
-            f"Property Insights Australia has {len(implemented)} IMPLEMENTED competitive advantages "
+            f"Australian Property Associates has {len(implemented)} IMPLEMENTED competitive advantages "
             f"and {len(RECOMMENDATIONS) - len(implemented)} planned features in the pipeline. "
             f"No single AU competitor matches our combination of: "
             f"(1) Always-on auto-scout discovering properties 24/7, "

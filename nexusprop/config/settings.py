@@ -1,5 +1,5 @@
 """
-Property Insights Australia — Central configuration loaded from environment.
+Australian Property Associates — Central configuration loaded from environment.
 
 All Australian-market-specific defaults are tuned here.
 """
@@ -114,7 +114,7 @@ class Settings(BaseSettings):
     )
 
     # --- App ---
-    app_name: str = "Property Insights Australia"
+    app_name: str = "Australian Property Associates"
     app_env: AppEnv = AppEnv.DEVELOPMENT
     app_debug: bool = True
     app_port: int = 8001
@@ -139,7 +139,7 @@ class Settings(BaseSettings):
     zenrows_api_key: str = ""
     scrape_interval_minutes: int = 30
     max_concurrent_scrapers: int = 5
-    user_agent: str = "PropertyInsightsAU/1.0"
+    user_agent: str = "AustralianPropertyAssociates/5.1"
 
     # --- Notifications ---
     twilio_account_sid: str = ""
@@ -147,7 +147,7 @@ class Settings(BaseSettings):
     twilio_whatsapp_from: str = "whatsapp:+14155238886"
     twilio_sms_from: str = ""
     sendgrid_api_key: str = ""
-    from_email: str = "alerts@propertyinsightsaustralia.com.au"
+    from_email: str = "alerts@australianpropertyassociates.com.au"
 
     # --- Australian Market Defaults ---
     default_interest_rate: float = Field(default=6.25, description="Current variable rate %")
