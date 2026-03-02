@@ -1303,20 +1303,35 @@ async function enhancePhoto() {
         }
         const result = await res.json();
 
-        if (result.enhanced_base64) {
-            $('photo-after').innerHTML = `<img src="data:image/jpeg;base64,${result.enhanced_base64}" class="max-w-full max-h-[400px] rounded">`;
+        // Support both field names: image_base64 (current) and enhanced_base64 (legacy)
+        const b64 = result.image_base64 || result.enhanced_base64;
+        if (b64) {
+            $('photo-after').innerHTML = `<img src="data:image/jpeg;base64,${b64}" class="max-w-full max-h-[400px] rounded">`;
+        } else if (result.data_uri) {
+            $('photo-after').innerHTML = `<img src="${result.data_uri}" class="max-w-full max-h-[400px] rounded">`;
         } else if (result.output_path) {
             $('photo-after').innerHTML = `<div class="text-terminal-green text-xs font-mono p-4">Enhanced! Saved to: ${result.output_path}</div>`;
         }
 
-        if (result.improvements) {
-            $('photo-metrics').classList.remove('hidden');
-            $('photo-metrics').innerHTML = Object.entries(result.improvements || {}).map(([k, v]) =>
-                `<div class="bg-terminal-bg rounded border border-terminal-border p-2 text-center">
-                    <div class="text-[9px] text-terminal-muted font-mono">${k.replace(/_/g, ' ').toUpperCase()}</div>
-                    <div class="text-xs font-mono font-bold text-terminal-accent">${v}</div>
-                </div>`
-            ).join('');
+        // Show enhancement log (enhancements_applied) or legacy improvements dict
+        const metricsEl = $('photo-metrics');
+        if (metricsEl) {
+            if (result.enhancements_applied && result.enhancements_applied.length) {
+                metricsEl.classList.remove('hidden');
+                metricsEl.innerHTML = result.enhancements_applied.map(e =>
+                    `<div class="bg-terminal-bg rounded border border-terminal-border p-2 text-center">
+                        <div class="text-[9px] text-terminal-muted font-mono">${e}</div>
+                    </div>`
+                ).join('');
+            } else if (result.improvements) {
+                metricsEl.classList.remove('hidden');
+                metricsEl.innerHTML = Object.entries(result.improvements || {}).map(([k, v]) =>
+                    `<div class="bg-terminal-bg rounded border border-terminal-border p-2 text-center">
+                        <div class="text-[9px] text-terminal-muted font-mono">${k.replace(/_/g, ' ').toUpperCase()}</div>
+                        <div class="text-xs font-mono font-bold text-terminal-accent">${v}</div>
+                    </div>`
+                ).join('');
+            }
         }
 
         showToast('Photo enhanced successfully!', 'success');
@@ -1717,15 +1732,18 @@ async function enhancePropertyPhoto(imageUrl) {
     // Try to enhance via API (fetch image → send to enhance endpoint)
     try {
         const response = await fetch(imageUrl);
+        if (!response.ok) throw new Error('Could not fetch image');
         const blob = await response.blob();
 
         const formData = new FormData();
-        formData.append('photo', blob, 'property.jpg');
+        // FIX: field name must be 'file' to match the FastAPI UploadFile parameter
+        formData.append('file', blob, 'property.jpg');
 
         const preset = $('photo-preset')?.value || 'real_estate_standard';
         const upscale = $('photo-upscale')?.checked || false;
 
-        const res = await fetch(`${BASE}/photos/enhance?preset=${preset}&upscale=${upscale}`, {
+        // FIX: correct endpoint is /photos/enhance-upload (not /photos/enhance)
+        const res = await fetch(`${BASE}/photos/enhance-upload`, {
             method: 'POST',
             body: formData,
         });
@@ -1733,15 +1751,29 @@ async function enhancePropertyPhoto(imageUrl) {
         if (res.ok) {
             const result = await res.json();
             const afterPanel = $('photo-after');
-            if (afterPanel && result.enhanced_base64) {
-                afterPanel.innerHTML = `<img src="data:image/jpeg;base64,${result.enhanced_base64}" alt="Enhanced" class="w-full h-full object-cover rounded">`;
+            // FIX: API returns 'image_base64' (also aliased as 'enhanced_base64' for compat)
+            const b64 = result.image_base64 || result.enhanced_base64 || result.data_uri;
+            if (afterPanel && b64) {
+                const src = b64.startsWith('data:') ? b64 : `data:image/jpeg;base64,${b64}`;
+                afterPanel.innerHTML = `<img src="${src}" alt="Enhanced" class="w-full h-full object-cover rounded">`;
+                // Show enhancement log if available
+                const metrics = $('photo-metrics');
+                if (metrics && result.enhancements_applied && result.enhancements_applied.length) {
+                    metrics.classList.remove('hidden');
+                    metrics.innerHTML = result.enhancements_applied.map(e =>
+                        `<div class="bg-terminal-bg rounded border border-terminal-border p-2 text-center">
+                            <div class="text-[9px] text-terminal-muted font-mono">${e}</div>
+                        </div>`
+                    ).join('');
+                }
             }
             showToast('Photo enhanced successfully!', 'success');
         } else {
-            showToast('Enhancement processing — check Photos tab', 'warn');
+            const err = await res.json().catch(() => ({}));
+            showToast(err.detail || 'Enhancement failed — check Photos tab', 'warn');
         }
     } catch (e) {
-        showToast('Photo loaded for enhancement — select preset and enhance', 'info');
+        showToast('Photo loaded for enhancement — select preset and enhance manually', 'info');
     }
 }
 

@@ -326,16 +326,92 @@ class DataCleaner:
                     return tag.get_text(strip=True)
         return None
 
+    # Image URL patterns that indicate a non-photo asset (icons, logos, sprites, trackers).
+    # IMPORTANT: use word boundaries (\b) for short tokens like 'ad' and 'blank' to avoid
+    # false positives on words like 'upload' (contains 'ad') or 'domain' (no match, but safe).
+    _IMAGE_SKIP_PATTERNS = re.compile(
+        r"(logo|icon|sprite|avatar|placeholder|\bblank\b|pixel|tracking|beacon"
+        r"|1x1|spacer|arrow|chevron|\bstar\b|badge|banner|\bad\b|advertisement)",
+        re.IGNORECASE,
+    )
+    # Minimum dimensions to be a real photo (skip tiny thumbnails/icons)
+    _MIN_IMAGE_DIMENSION = 100
+
     def _extract_images(self, soup: BeautifulSoup) -> list[str]:
-        """Extract property image URLs."""
-        images = []
+        """
+        Extract property image URLs from parsed HTML.
+
+        Improvements over the original:
+        - Accepts ALL image URLs (not just those containing 'property/listing/photo/image')
+          because most real estate CDNs use opaque paths like /upload/abc123.jpg
+        - Checks data-src, data-lazy-src, srcset for lazy-loaded images
+        - Skips icons, logos, sprites, and tracking pixels
+        - Deduplicates results
+        """
+        seen: set[str] = set()
+        images: list[str] = []
+
         for img in soup.find_all("img"):
-            src = img.get("src", "") or img.get("data-src", "")
-            if src and any(kw in src.lower() for kw in ["property", "listing", "photo", "image"]):
+            # Collect all candidate src attributes (lazy-load variants included)
+            candidates = [
+                img.get("src", ""),
+                img.get("data-src", ""),
+                img.get("data-lazy-src", ""),
+                img.get("data-original", ""),
+                img.get("data-image", ""),
+            ]
+            # Also parse srcset — take the highest-resolution URL
+            srcset = img.get("srcset", "")
+            if srcset:
+                # srcset format: "url1 1x, url2 2x" or "url1 400w, url2 800w"
+                for part in srcset.split(","):
+                    url_part = part.strip().split()[0]
+                    if url_part:
+                        candidates.append(url_part)
+
+            for src in candidates:
+                if not src:
+                    continue
+                # Normalise protocol-relative URLs
                 if src.startswith("//"):
                     src = "https:" + src
-                if src.startswith("http"):
+                if not src.startswith("http"):
+                    continue
+                # Skip known non-photo patterns
+                if self._IMAGE_SKIP_PATTERNS.search(src):
+                    continue
+                # Skip data URIs
+                if src.startswith("data:"):
+                    continue
+                # Skip very small images by checking width/height attributes
+                try:
+                    w = int(img.get("width", 0) or 0)
+                    h = int(img.get("height", 0) or 0)
+                    if (w and w < self._MIN_IMAGE_DIMENSION) or (h and h < self._MIN_IMAGE_DIMENSION):
+                        continue
+                except (ValueError, TypeError):
+                    pass
+                # Deduplicate
+                if src not in seen:
+                    seen.add(src)
                     images.append(src)
+
+        # Also check <source> tags inside <picture> elements
+        for source in soup.find_all("source"):
+            srcset = source.get("srcset", "")
+            if not srcset:
+                continue
+            for part in srcset.split(","):
+                url_part = part.strip().split()[0]
+                if not url_part:
+                    continue
+                if url_part.startswith("//"):
+                    url_part = "https:" + url_part
+                if url_part.startswith("http") and url_part not in seen:
+                    if not self._IMAGE_SKIP_PATTERNS.search(url_part):
+                        seen.add(url_part)
+                        images.append(url_part)
+
         return images
 
     def _extract_agent_info(self, soup: BeautifulSoup) -> tuple[Optional[str], Optional[str], Optional[str]]:
