@@ -47,8 +47,8 @@ async def ask_mentor(req: MentorRequest):
 
     result = await _mentor.safe_execute(
         user_input=req.question,
-        topic=req.topic,
-        investor_profile=profile,
+        topic=req.topic or "general",
+        profile=profile,
         context=req.context or {},
     )
 
@@ -59,7 +59,7 @@ async def ask_mentor(req: MentorRequest):
 
     return MentorResponse(
         topic=data.get("topic", req.topic or "general_coaching"),
-        response=data.get("response", ""),
+        response=data.get("coaching") or data.get("response", ""),
         experience_level=data.get("experience_level", "intermediate"),
         follow_up_topics=data.get("follow_up_topics", []),
     )

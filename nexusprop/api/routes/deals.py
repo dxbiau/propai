@@ -34,6 +34,7 @@ class AnalyzePropertyRequest(BaseModel):
     suburb_median: Optional[float] = Field(None, ge=0, description="Suburb median for comps")
     weekly_rent_estimate: Optional[float] = Field(None, ge=0)
     renovation_cost: Optional[float] = Field(None, ge=0)
+    run_ai_analysis: bool = Field(default=True, description="Whether to run AI deep analysis")
 
 
 class AnalyzeUrlRequest(BaseModel):
@@ -186,6 +187,7 @@ async def analyze_property(
         analyst_result = await orchestrator.analyst.safe_execute(
             properties=[prop],
             strategy=body.strategy,
+            run_ai_analysis=body.run_ai_analysis,
         )
 
         if not analyst_result.success:

@@ -241,7 +241,10 @@ class AnalystAgent(BaseAgent):
 
         # 6. AI Analysis (optional — uses Claude for deep insights)
         ai_analysis = ""
-        if run_ai and self.settings.anthropic_api_key:
+        # Use OpenAI (pre-configured) or any available LLM — not just Anthropic
+        import os
+        _has_llm = bool(os.environ.get("OPENAI_API_KEY") or self.settings.anthropic_api_key or self.settings.use_ollama)
+        if run_ai and _has_llm:
             ai_analysis, ai_tokens = await self._run_ai_analysis(
                 prop, suburb, roi_result, bargain_score, comps_summary
             )
@@ -314,8 +317,8 @@ SUBURB MARKET DATA ({prop.suburb}):
 - Gross Rental Yield: {suburb.growth.gross_rental_yield_house or 0}%
 - Vacancy Rate: {suburb.vacancy_rate_pct or 'Unknown'}%
 - Days on Market (avg): {suburb.growth.days_on_market_avg or 'Unknown'}
-- Population: {suburb.population or 'Unknown'}
-- Median Household Income: ${suburb.median_household_income or 0:,.0f}
+- Population: {suburb.demographics.population or 'Unknown'}
+- Median Household Income: ${suburb.demographics.median_household_income or 0:,.0f}
 
 LAND-TO-ASSET ANALYSIS:
 - Estimated Land Value: ${land_value_est:,.0f}
@@ -329,8 +332,8 @@ FINANCIAL ANALYSIS:
 - Monthly Cash Flow: ${roi_result.monthly_cash_flow:,.0f}
 - Cash Flow Positive: {'Yes' if roi_result.is_cash_flow_positive else 'No'}
 - Total Investment Required: ${roi_result.total_investment:,.0f}
-- Annual Expenses: ${roi_result.annual_expenses:,.0f}
-- Annual Mortgage: ${roi_result.annual_mortgage_repayment:,.0f}
+- Annual Expenses: ${roi_result.cash_flow_model.annual_expenses:,.0f}
+- Annual Mortgage: ${roi_result.cash_flow_model.annual_mortgage_repayment:,.0f}
 
 BARGAIN SCORE: {bargain_score.overall_score}/100
 - Price Deviation Score: {bargain_score.price_deviation_score}/100 (35% weight)

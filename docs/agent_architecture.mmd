@@ -1,0 +1,64 @@
+```mermaid
+graph TD
+    subgraph User Interface
+        UI_Dashboard[Dashboard]
+        UI_Onboarding[Onboarding Questionnaire]
+        UI_DealView[Deal View]
+    end
+
+    subgraph NexusProp Agentic Core
+        A_Mentor[Mentor Agent<br>(Strategic Partner)]
+        A_Scout[Scout Agent<br>(Opportunity Hunter)]
+        A_DD[Due Diligence Agent<br>(Risk Detective)]
+        A_Analyst[Analyst Agent<br>(Numbers Guru)]
+        A_Negotiator[Negotiator Agent<br>(Deal Closer)]
+    end
+
+    subgraph External Data Sources
+        DS_OnMarket[On-Market Portals<br>(Domain, REA)]
+        DS_OffMarket[Off-Market Channels<br>(Agent Emails)]
+        DS_Council[Council Databases<br>(Zoning, DAs)]
+        DS_Gov[Government Data<br>(Flood/Fire Maps, ABS)]
+        DS_Strata[Strata Reports<br>(User Upload)]
+    end
+
+    %% User Interaction Flow
+    UI_Onboarding -->|1. User Defines Goals| A_Mentor
+    A_Mentor -->|2. Creates Investment Thesis| UI_Dashboard
+    UI_Dashboard -->|3. User Initiates Search| A_Scout
+
+    %% Scouting & Filtering
+    A_Scout -->|4. Scans Sources| DS_OnMarket
+    A_Scout -->|4. Scans Sources| DS_OffMarket
+    DS_OnMarket -->|5. Finds Listings| A_Scout
+    DS_OffMarket -->|5. Finds Listings| A_Scout
+    A_Scout -->|6. Presents Opportunities| UI_Dashboard
+
+    %% Due Diligence & Analysis Flow
+    UI_Dashboard -->|7. User Selects Property| A_DD
+    A_DD -->|8. Investigates Risks| DS_Council
+    A_DD -->|8. Investigates Risks| DS_Gov
+    UI_DealView -->|User Uploads Report| DS_Strata
+    DS_Strata -->|8. Investigates Risks| A_DD
+    A_DD -->|9. Delivers Risk Report| UI_DealView
+
+    UI_DealView -->|10. User Requests Analysis| A_Analyst
+    A_Analyst -->|11. Gathers Suburb DNA| DS_Gov
+    A_Analyst -->|12. Delivers Financial Forecasts| UI_DealView
+
+    %% Negotiation Flow
+    UI_DealView -->|13. User Requests Negotiation Help| A_Negotiator
+    A_Negotiator -->|14. Gathers Intel| DS_OnMarket
+    A_Negotiator -->|15. Delivers Negotiation Dossier| UI_DealView
+
+    %% Styling
+    classDef agent fill:#1a2233,stroke:#00d4aa,stroke-width:2px,color:#e5e7eb;
+    class A_Mentor,A_Scout,A_DD,A_Analyst,A_Negotiator agent;
+
+    classDef ui fill:#0d1321,stroke:#3b82f6,stroke-width:2px,color:#e5e7eb;
+    class UI_Dashboard,UI_Onboarding,UI_DealView ui;
+
+    classDef data fill:#374151,stroke:#6b7280,stroke-width:1px,color:#e5e7eb,stroke-dasharray: 5 5;
+    class DS_OnMarket,DS_OffMarket,DS_Council,DS_Gov,DS_Strata data;
+```
+```

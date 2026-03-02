@@ -1,12 +1,12 @@
 """
-Base Agent — abstract base class for all Property Insights Australia agents.
+Base Agent — abstract base class for all NexusProp agents.
 
 Provides shared infrastructure: logging, LLM access, error handling,
 and a standard interface for the Orchestrator.
 
 LLM backend priority:
-  1. Ollama (free, local) — default
-  2. Anthropic (paid) — if API key is set and Ollama unavailable
+  1. OpenAI-compatible API (OPENAI_API_KEY env var) — default, uses gpt-4.1-mini
+  2. Ollama (free, local) — fallback if OpenAI unavailable
   3. No-AI fallback — returns a structured "no LLM available" message
 """
 
@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import abc
 import json
+import os
 from datetime import datetime
 from typing import Any, Optional
 from uuid import uuid4
@@ -64,7 +65,7 @@ class AgentResult:
 
 class BaseAgent(abc.ABC):
     """
-    Abstract base class for all Property Insights Australia agents.
+    Abstract base class for all NexusProp agents.
 
     Subclasses implement `execute()` with their specific logic.
     The base class handles LLM client management, logging, and error wrapping.
@@ -75,13 +76,54 @@ class BaseAgent(abc.ABC):
         self.settings = get_settings()
         self.logger = structlog.get_logger(self.name)
         self._http_client: Optional[httpx.AsyncClient] = None
+        self._openai_client = None
 
     @property
     def http(self) -> httpx.AsyncClient:
-        """Lazy-initialized async HTTP client for Ollama / fallback."""
+        """Lazy-initialized async HTTP client."""
         if self._http_client is None:
             self._http_client = httpx.AsyncClient(timeout=120.0)
         return self._http_client
+
+    def _get_openai_client(self):
+        """Lazy-initialize the OpenAI client."""
+        if self._openai_client is None:
+            try:
+                from openai import AsyncOpenAI
+                api_key = os.environ.get("OPENAI_API_KEY", "")
+                if api_key:
+                    self._openai_client = AsyncOpenAI()
+            except ImportError:
+                pass
+        return self._openai_client
+
+    async def _ask_openai(
+        self,
+        prompt: str,
+        system: str = "",
+        max_tokens: int = 4096,
+        temperature: float = 0.3,
+        model: str = "gpt-4.1-mini",
+    ) -> tuple[str, int]:
+        """Call OpenAI-compatible API (uses OPENAI_API_KEY env var)."""
+        client = self._get_openai_client()
+        if not client:
+            raise RuntimeError("OpenAI client not available")
+
+        messages = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+
+        response = await client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+        text = response.choices[0].message.content or ""
+        tokens = response.usage.total_tokens if response.usage else 0
+        return text, tokens
 
     async def _ask_ollama(
         self,
@@ -90,7 +132,7 @@ class BaseAgent(abc.ABC):
         max_tokens: int = 4096,
         temperature: float = 0.3,
     ) -> tuple[str, int]:
-        """Call Ollama's local chat API (100 % free)."""
+        """Call Ollama's local chat API (100% free)."""
         url = f"{self.settings.ollama_base_url}/api/chat"
         messages = []
         if system:
@@ -115,45 +157,31 @@ class BaseAgent(abc.ABC):
         tokens = data.get("eval_count", 0) + data.get("prompt_eval_count", 0)
         return text, tokens
 
-    async def _ask_anthropic(
-        self,
-        prompt: str,
-        system: str = "",
-        max_tokens: int = 4096,
-        temperature: float = 0.3,
-    ) -> tuple[str, int]:
-        """Fallback: call Anthropic (paid, requires API key)."""
-        from anthropic import AsyncAnthropic
-
-        client = AsyncAnthropic(api_key=self.settings.anthropic_api_key)
-        messages = [{"role": "user", "content": prompt}]
-        kwargs = {
-            "model": self.settings.anthropic_model,
-            "max_tokens": max_tokens,
-            "messages": messages,
-            "temperature": temperature,
-        }
-        if system:
-            kwargs["system"] = system
-
-        response = await client.messages.create(**kwargs)
-        text = response.content[0].text
-        tokens = response.usage.input_tokens + response.usage.output_tokens
-        return text, tokens
-
     async def ask_llm(
         self,
         prompt: str,
         system: str = "",
         max_tokens: int = 4096,
         temperature: float = 0.3,
+        model: str = "gpt-4.1-mini",
     ) -> tuple[str, int]:
         """
         Send a prompt to the best available LLM and return (response_text, tokens_used).
 
-        Priority: Ollama (free) → Anthropic (paid) → no-AI fallback.
+        Priority: OpenAI API → Ollama (local) → no-AI fallback.
         """
-        # 1. Try Ollama first (free)
+        # 1. Try OpenAI first (pre-configured in sandbox)
+        openai_key = os.environ.get("OPENAI_API_KEY", "")
+        if openai_key:
+            try:
+                self.logger.info("llm_request_openai", model=model, prompt_len=len(prompt))
+                text, tokens = await self._ask_openai(prompt, system, max_tokens, temperature, model)
+                self.logger.info("llm_response_openai", tokens=tokens, response_len=len(text))
+                return text, tokens
+            except Exception as e:
+                self.logger.warning("openai_unavailable", error=str(e))
+
+        # 2. Try Ollama (free local)
         if self.settings.use_ollama:
             try:
                 self.logger.info("llm_request_ollama", model=self.settings.ollama_model, prompt_len=len(prompt))
@@ -163,22 +191,48 @@ class BaseAgent(abc.ABC):
             except Exception as e:
                 self.logger.warning("ollama_unavailable", error=str(e))
 
-        # 2. Try Anthropic if API key set
-        if self.settings.anthropic_api_key:
-            try:
-                self.logger.info("llm_request_anthropic", model=self.settings.anthropic_model, prompt_len=len(prompt))
-                text, tokens = await self._ask_anthropic(prompt, system, max_tokens, temperature)
-                self.logger.info("llm_response_anthropic", tokens=tokens, response_len=len(text))
-                return text, tokens
-            except Exception as e:
-                self.logger.warning("anthropic_unavailable", error=str(e))
-
         # 3. No-AI fallback
         self.logger.warning("no_llm_available", agent=self.name)
         return (
-            '{"error": "No LLM available. Install Ollama (free) or set ANTHROPIC_API_KEY."}',
+            '{"error": "No LLM available. Set OPENAI_API_KEY or install Ollama."}',
             0,
         )
+
+    async def ask_llm_json(
+        self,
+        prompt: str,
+        system: str = "",
+        max_tokens: int = 4096,
+        temperature: float = 0.2,
+        model: str = "gpt-4.1-mini",
+    ) -> dict:
+        """
+        Ask the LLM and parse the response as JSON.
+        Automatically strips markdown code fences if present.
+        """
+        text, tokens = await self.ask_llm(prompt, system, max_tokens, temperature, model)
+
+        # Strip markdown code fences
+        clean = text.strip()
+        if clean.startswith("```"):
+            lines = clean.split("\n")
+            # Remove first and last fence lines
+            lines = [l for l in lines if not l.startswith("```")]
+            clean = "\n".join(lines).strip()
+
+        try:
+            return json.loads(clean)
+        except json.JSONDecodeError:
+            # Try to extract JSON from within the text
+            import re
+            match = re.search(r'\{.*\}', clean, re.DOTALL)
+            if match:
+                try:
+                    return json.loads(match.group())
+                except json.JSONDecodeError:
+                    pass
+            self.logger.warning("llm_json_parse_failed", raw=clean[:200])
+            return {"error": "Failed to parse LLM response as JSON", "raw": clean[:500]}
 
     @abc.abstractmethod
     async def execute(self, *args, **kwargs) -> AgentResult:
