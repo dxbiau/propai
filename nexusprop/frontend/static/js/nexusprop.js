@@ -129,7 +129,7 @@ function propPlaceholder(type, suburb, size, imageUrl) {
    TAB SWITCHING
    ───────────────────────────────────────────────────────────────── */
 
-const TAB_IDS = ['deals','properties','offers','pipeline','profiler','mentor','diligence','negotiate','qa','photos','research'];
+const TAB_IDS = ['deals','properties','offers','pipeline','profiler','mentor','diligence','negotiate','qa','photos','reno','research'];
 
 function switchTab(name) {
     TAB_IDS.forEach(t => {
@@ -2040,5 +2040,201 @@ async function executeClimateOnly() {
         }
     } catch (e) {
         showToast('Climate data unavailable for this suburb', 'warn');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AI RENO VISION — Renovation Engine + Bunnings Materials
+// ═══════════════════════════════════════════════════════════════
+
+async function generateRenoVision() {
+    const suburb = ($('reno-suburb') || {}).value?.trim();
+    const state  = ($('reno-state') || {}).value;
+    if (!suburb || !state) {
+        showToast('Enter suburb and state first', 'error');
+        return;
+    }
+
+    // Show loading, hide others
+    $('reno-empty').classList.add('hidden');
+    $('reno-summary').classList.add('hidden');
+    $('reno-rooms').innerHTML = '';
+    $('reno-quick-estimate').classList.add('hidden');
+    $('reno-loading').classList.remove('hidden');
+
+    try {
+        const payload = {
+            suburb,
+            state,
+            property_type: ($('reno-type') || {}).value || 'house',
+            bedrooms:       parseInt(($('reno-beds') || {}).value) || 3,
+            bathrooms:      parseInt(($('reno-baths') || {}).value) || 1,
+            asking_price:   parseFloat(($('reno-price') || {}).value) || 550000,
+            style:          ($('reno-style') || {}).value || 'contemporary',
+            budget_tier:    ($('reno-budget') || {}).value || 'refresh',
+            generate_images: false,
+        };
+
+        const result = await api('POST', '/reno-vision/generate', payload);
+        $('reno-loading').classList.add('hidden');
+
+        if (result && result.package) {
+            renderRenoPackage(result);
+        } else {
+            showToast('Reno vision generation failed', 'error');
+            $('reno-empty').classList.remove('hidden');
+        }
+    } catch (e) {
+        $('reno-loading').classList.add('hidden');
+        $('reno-empty').classList.remove('hidden');
+        showToast('Error generating reno vision: ' + e.message, 'error');
+    }
+}
+
+function renderRenoPackage(result) {
+    const pkg     = result.package;
+    const summary = result.summary;
+
+    // ── Summary card ──
+    $('reno-tagline').textContent     = pkg.tagline || 'AI Renovation Vision';
+    $('reno-exec-summary').textContent = pkg.executive_summary || '';
+    $('reno-mat-cost').textContent    = fmtPrice(summary.total_materials_cost);
+    $('reno-labour-cost').textContent = fmtPrice(summary.total_labour_estimate);
+    $('reno-total-cost').textContent  = fmtPrice(summary.total_project_cost);
+    $('reno-uplift').textContent      = `+${summary.estimated_value_uplift_pct}% (${fmtPrice(summary.estimated_value_uplift_aud)})`;
+    $('reno-roi').textContent         = `${summary.roi_on_reno}x`;
+    $('reno-items-count').textContent = summary.total_bunnings_items;
+    $('reno-summary').classList.remove('hidden');
+
+    // ── Room cards ──
+    const container = $('reno-rooms');
+    container.innerHTML = '';
+
+    (pkg.rooms || []).forEach(room => {
+        const materialsHtml = (room.materials || []).map(item => `
+            <tr class="border-b border-terminal-border/30 hover:bg-terminal-bg/50 transition">
+                <td class="py-1.5 pr-2">
+                    <a href="${item.url}" target="_blank" rel="noopener" class="text-terminal-accent hover:underline text-[10px] font-mono">${item.name}</a>
+                    <div class="text-[9px] text-terminal-muted">${item.brand} &middot; SKU: ${item.sku}</div>
+                    <div class="text-[9px] text-terminal-dim italic">${item.purpose}</div>
+                </td>
+                <td class="py-1.5 text-right text-[10px] font-mono text-terminal-dim whitespace-nowrap">${item.unit}</td>
+                <td class="py-1.5 text-right text-[10px] font-mono text-terminal-text whitespace-nowrap">&times;${item.quantity}</td>
+                <td class="py-1.5 text-right text-[10px] font-mono text-terminal-warn font-bold whitespace-nowrap">${fmtPrice(item.total_cost)}</td>
+            </tr>
+        `).join('');
+
+        const changesHtml = (room.key_changes || []).map(c =>
+            `<li class="text-[10px] text-terminal-dim leading-relaxed">&bull; ${c}</li>`
+        ).join('');
+
+        const upliftColor = room.roi_uplift_pct >= 3
+            ? 'text-terminal-green'
+            : room.roi_uplift_pct >= 1.5
+                ? 'text-terminal-warn'
+                : 'text-terminal-dim';
+
+        const card = document.createElement('div');
+        card.className = 'bg-terminal-panel rounded border border-terminal-border p-4 animate-fade-in';
+        card.innerHTML = `
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <div class="font-mono text-xs text-terminal-accent font-bold">${room.room_name.toUpperCase()}</div>
+                    <div class="font-mono text-sm text-terminal-text mt-0.5">${room.headline}</div>
+                </div>
+                <div class="text-right">
+                    <div class="font-mono text-sm font-bold text-terminal-warn">${fmtPrice(room.total_room_cost)}</div>
+                    <div class="text-[9px] font-mono ${upliftColor}">+${room.roi_uplift_pct}% uplift</div>
+                </div>
+            </div>
+            <div class="text-[10px] text-terminal-dim leading-relaxed mb-3">${room.description}</div>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <div class="text-[9px] font-mono text-terminal-muted mb-1 tracking-wider">KEY CHANGES</div>
+                    <ul class="space-y-0.5">${changesHtml}</ul>
+                </div>
+                <div>
+                    <div class="text-[9px] font-mono text-terminal-muted mb-1 tracking-wider">COST BREAKDOWN</div>
+                    <div class="flex justify-between text-[10px] font-mono"><span class="text-terminal-muted">Materials</span><span class="text-terminal-text">${fmtPrice(room.total_materials_cost)}</span></div>
+                    <div class="flex justify-between text-[10px] font-mono"><span class="text-terminal-muted">Labour est.</span><span class="text-terminal-text">${fmtPrice(room.labour_estimate)}</span></div>
+                    <div class="flex justify-between text-[10px] font-mono border-t border-terminal-border/50 mt-1 pt-1"><span class="text-terminal-muted font-bold">Room Total</span><span class="text-terminal-warn font-bold">${fmtPrice(room.total_room_cost)}</span></div>
+                </div>
+            </div>
+            ${room.materials && room.materials.length > 0 ? `
+            <details class="group">
+                <summary class="cursor-pointer text-[10px] font-mono text-terminal-accent hover:text-terminal-text transition flex items-center gap-1 select-none">
+                    <span class="group-open:rotate-90 transition-transform inline-block">&#9658;</span>
+                    BUNNINGS MATERIALS LIST (${room.materials.length} items)
+                    <span class="ml-auto text-terminal-muted">Click to expand</span>
+                </summary>
+                <div class="mt-2 overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-terminal-border">
+                                <th class="pb-1 text-[9px] font-mono text-terminal-muted">PRODUCT</th>
+                                <th class="pb-1 text-[9px] font-mono text-terminal-muted text-right">UNIT</th>
+                                <th class="pb-1 text-[9px] font-mono text-terminal-muted text-right">QTY</th>
+                                <th class="pb-1 text-[9px] font-mono text-terminal-muted text-right">TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>${materialsHtml}</tbody>
+                    </table>
+                </div>
+                <div class="mt-2 text-[9px] font-mono text-terminal-muted italic">${pkg.partnership_note || ''}</div>
+            </details>
+            ` : ''}
+        `;
+        container.appendChild(card);
+    });
+
+    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast(`Reno vision ready \u2014 ${pkg.rooms.length} rooms, ${fmtPrice(summary.total_project_cost)} total`, 'success');
+}
+
+async function getQuickRenoEstimate() {
+    const suburb = ($('reno-suburb') || {}).value?.trim() || 'Unknown';
+    const state  = ($('reno-state') || {}).value || 'NSW';
+    const price  = parseFloat(($('reno-price') || {}).value) || 550000;
+    const beds   = parseInt(($('reno-beds') || {}).value) || 3;
+    const type   = ($('reno-type') || {}).value || 'house';
+
+    try {
+        const result = await api('POST', '/reno-vision/quick-estimate', {
+            suburb, state,
+            property_type: type,
+            bedrooms: beds,
+            bathrooms: parseInt(($('reno-baths') || {}).value) || 1,
+            asking_price: price,
+            style: ($('reno-style') || {}).value || 'contemporary',
+            budget_tier: ($('reno-budget') || {}).value || 'refresh',
+        });
+
+        if (!result || !result.estimates) return;
+
+        const container = $('reno-quick-content');
+        const tierLabels = { cosmetic: 'COSMETIC REFRESH', refresh: 'FULL REFRESH', transform: 'FULL TRANSFORMATION' };
+        const tierColors = { cosmetic: 'text-terminal-green', refresh: 'text-terminal-warn', transform: 'text-terminal-accent' };
+
+        container.innerHTML = Object.entries(result.estimates).map(([tier, est]) => `
+            <div class="bg-terminal-bg rounded border border-terminal-border p-3">
+                <div class="font-mono text-[9px] ${tierColors[tier] || 'text-terminal-dim'} tracking-wider mb-1">${tierLabels[tier] || tier.toUpperCase()}</div>
+                <div class="font-mono text-sm font-bold text-terminal-text mb-1">${est.cost_range}</div>
+                <div class="text-[9px] text-terminal-muted mb-2">${est.description}</div>
+                <div class="flex justify-between text-[10px] font-mono">
+                    <span class="text-terminal-muted">Uplift</span>
+                    <span class="text-terminal-green">+${est.estimated_value_uplift_pct}% (${fmtPrice(est.estimated_value_uplift_aud)})</span>
+                </div>
+                <div class="flex justify-between text-[10px] font-mono">
+                    <span class="text-terminal-muted">ROI</span>
+                    <span class="text-terminal-accent font-bold">${est.roi_on_reno}x</span>
+                </div>
+            </div>
+        `).join('');
+
+        $('reno-quick-estimate').classList.remove('hidden');
+        $('reno-quick-estimate').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        showToast('Quick estimate ready', 'success');
+    } catch (e) {
+        showToast('Quick estimate failed', 'error');
     }
 }

@@ -45,6 +45,7 @@ from nexusprop.api.routes.market import router as market_router
 from nexusprop.api.routes.research import router as research_router
 from nexusprop.api.routes.suburb_intelligence import router as suburb_intelligence_router
 from nexusprop.api.routes.investor_profiler import router as investor_profiler_router
+from nexusprop.api.routes.reno_vision import router as reno_vision_router
 from nexusprop.api.middleware import RequestLoggingMiddleware, RateLimitMiddleware
 
 logger = structlog.get_logger(__name__)
@@ -169,7 +170,7 @@ app = FastAPI(
         "The Bloomberg Terminal for Australian Property - All 8 States & Territories. "
         "15 AI Agents | Climate Risk Profiling | Personal Research."
     ),
-    version="5.1.0",
+    version="5.2.0",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -209,6 +210,7 @@ app.include_router(market_router, prefix="/api/v1/market", tags=["Market Data"])
 app.include_router(research_router, prefix="/api/v1/research", tags=["Personal Research"])
 app.include_router(suburb_intelligence_router, prefix="/api/v1/suburb-intelligence", tags=["Suburb Intelligence"])
 app.include_router(investor_profiler_router, prefix="/api/v1/investor-profiler", tags=["Investor Profiler"])
+app.include_router(reno_vision_router, prefix="/api/v1/reno-vision", tags=["AI Reno Vision"])
 
 
 # ---------------------------------------------------------------------------
@@ -220,7 +222,7 @@ async def root():
     return {
         "name": "Australian Property Associates",
         "tagline": "Your Digital Property Associate - All of Australia",
-        "version": "5.1.0",
+        "version": "5.2.0",
         "docs": "/docs",
     }
 

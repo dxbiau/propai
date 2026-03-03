@@ -278,6 +278,7 @@
         <button onclick="switchTab('negotiate')" id="tab-negotiate" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">NEGOTIATION</button>
         <button onclick="switchTab('qa')" id="tab-qa" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🔬 QA ENGINE</button>
         <button onclick="switchTab('photos')" id="tab-photos" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">📸 PHOTOS</button>
+        <button onclick="switchTab('reno')" id="tab-reno" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🏠 RENO VISION</button>
         <button onclick="switchTab('research')" id="tab-research" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🔍 RESEARCH</button>
     </div>
 
@@ -648,6 +649,143 @@
                         </div>
                     </div>
                     <div id="photo-metrics" class="hidden mt-3 grid grid-cols-4 gap-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ═══ AI RENO VISION ═══ -->
+        <div id="panel-reno" class="tab-panel hidden">
+            <div class="grid grid-cols-3 gap-3">
+                <!-- LEFT: Config Panel -->
+                <div class="bg-terminal-panel rounded border border-terminal-border p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="font-mono text-xs text-terminal-accent tracking-wider">🏠 AI RENO VISION</div>
+                        <span class="text-[10px] font-mono text-terminal-green bg-terminal-green/10 px-2 py-0.5 rounded">BUNNINGS PARTNER</span>
+                    </div>
+                    <div class="text-[10px] text-terminal-muted leading-relaxed">Generate an AI renovation vision for any property. Get room-by-room transformation ideas with real Bunnings materials, SKUs, and current pricing — plus estimated value uplift and ROI.</div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">SUBURB</label>
+                        <input type="text" id="reno-suburb" placeholder="e.g. Rockingham, Ipswich, Elizabeth..." class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-terminal-muted font-mono mb-1">STATE</label>
+                            <select id="reno-state" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs font-mono text-terminal-text w-full">
+                                <option value="">Select...</option>
+                                <option value="NSW">NSW</option>
+                                <option value="VIC">VIC</option>
+                                <option value="QLD">QLD</option>
+                                <option value="SA">SA</option>
+                                <option value="WA">WA</option>
+                                <option value="TAS">TAS</option>
+                                <option value="NT">NT</option>
+                                <option value="ACT">ACT</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-terminal-muted font-mono mb-1">PROPERTY TYPE</label>
+                            <select id="reno-type" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs font-mono text-terminal-text w-full">
+                                <option value="house">House</option>
+                                <option value="unit">Unit</option>
+                                <option value="townhouse">Townhouse</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-terminal-muted font-mono mb-1">BEDROOMS</label>
+                            <select id="reno-beds" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs font-mono text-terminal-text w-full">
+                                <option value="2">2</option>
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-terminal-muted font-mono mb-1">BATHROOMS</label>
+                            <select id="reno-baths" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1.5 text-xs font-mono text-terminal-text w-full">
+                                <option value="1" selected>1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">PURCHASE PRICE (AUD)</label>
+                        <input type="number" id="reno-price" placeholder="550000" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">RENOVATION STYLE</label>
+                        <select id="reno-style" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                            <option value="contemporary">Contemporary — Clean lines, neutral palette</option>
+                            <option value="coastal">Coastal — Blues, whites, natural timber</option>
+                            <option value="hamptons">Hamptons — White shaker, navy, brass</option>
+                            <option value="scandinavian">Scandinavian — White walls, light oak</option>
+                            <option value="industrial">Industrial — Matte black, concrete look</option>
+                            <option value="classic">Classic — Timeless neutrals, quality finishes</option>
+                            <option value="farmhouse">Farmhouse — Warm whites, vintage hardware</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">BUDGET TIER</label>
+                        <select id="reno-budget" class="bg-terminal-bg border border-terminal-border rounded px-3 py-1.5 text-xs font-mono text-terminal-text w-full">
+                            <option value="cosmetic">Cosmetic Refresh — $2k–$8k</option>
+                            <option value="refresh" selected>Full Refresh — $8k–$20k</option>
+                            <option value="transform">Full Transformation — $20k–$50k</option>
+                        </select>
+                    </div>
+                    <button onclick="generateRenoVision()" class="bg-terminal-accent text-terminal-bg w-full py-2 rounded font-mono text-xs font-bold hover:bg-terminal-accent/90 transition">✨ GENERATE RENO VISION</button>
+                    <button onclick="getQuickRenoEstimate()" class="bg-terminal-panel hover:bg-terminal-border text-terminal-dim w-full py-1.5 rounded font-mono text-[10px] transition border border-terminal-border">QUICK COST ESTIMATE (INSTANT)</button>
+                </div>
+                <!-- CENTRE + RIGHT: Results -->
+                <div class="col-span-2 space-y-3">
+                    <!-- Summary Card -->
+                    <div id="reno-summary" class="hidden bg-terminal-panel rounded border border-terminal-border p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div id="reno-tagline" class="font-mono text-sm text-terminal-accent font-bold"></div>
+                            <span class="text-[10px] font-mono text-terminal-green bg-terminal-green/10 px-2 py-0.5 rounded">BUNNINGS SOURCED</span>
+                        </div>
+                        <div id="reno-exec-summary" class="text-[10px] text-terminal-dim leading-relaxed mb-3"></div>
+                        <div class="grid grid-cols-4 gap-3">
+                            <div class="bg-terminal-bg rounded border border-terminal-border p-2 text-center">
+                                <div class="text-[9px] text-terminal-muted font-mono mb-1">MATERIALS</div>
+                                <div id="reno-mat-cost" class="font-mono text-sm font-bold text-terminal-text">—</div>
+                            </div>
+                            <div class="bg-terminal-bg rounded border border-terminal-border p-2 text-center">
+                                <div class="text-[9px] text-terminal-muted font-mono mb-1">LABOUR EST.</div>
+                                <div id="reno-labour-cost" class="font-mono text-sm font-bold text-terminal-text">—</div>
+                            </div>
+                            <div class="bg-terminal-bg rounded border border-terminal-border p-2 text-center">
+                                <div class="text-[9px] text-terminal-muted font-mono mb-1">TOTAL COST</div>
+                                <div id="reno-total-cost" class="font-mono text-sm font-bold text-terminal-warn">—</div>
+                            </div>
+                            <div class="bg-terminal-bg rounded border border-terminal-border p-2 text-center">
+                                <div class="text-[9px] text-terminal-muted font-mono mb-1">VALUE UPLIFT</div>
+                                <div id="reno-uplift" class="font-mono text-sm font-bold text-terminal-green">—</div>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center justify-between">
+                            <div class="text-[10px] font-mono text-terminal-muted">ROI on Renovation: <span id="reno-roi" class="text-terminal-accent font-bold">—</span></div>
+                            <div class="text-[10px] font-mono text-terminal-muted">Bunnings Items: <span id="reno-items-count" class="text-terminal-text">—</span></div>
+                        </div>
+                    </div>
+                    <!-- Loading State -->
+                    <div id="reno-loading" class="hidden bg-terminal-panel rounded border border-terminal-border p-8 text-center">
+                        <div class="text-2xl mb-2">🏗️</div>
+                        <div class="font-mono text-xs text-terminal-accent animate-pulse">AI GENERATING RENO VISION...</div>
+                        <div class="text-[10px] text-terminal-muted mt-1">Designing room-by-room transformation &amp; sourcing Bunnings materials</div>
+                    </div>
+                    <!-- Empty State -->
+                    <div id="reno-empty" class="bg-terminal-panel rounded border border-terminal-border p-8 text-center">
+                        <div class="text-3xl mb-2">🏠</div>
+                        <div class="text-[10px] text-terminal-muted">Enter property details and click Generate Reno Vision<br>to see an AI-powered transformation plan with Bunnings materials</div>
+                    </div>
+                    <!-- Rooms Container -->
+                    <div id="reno-rooms" class="space-y-3"></div>
+                    <!-- Quick Estimate -->
+                    <div id="reno-quick-estimate" class="hidden bg-terminal-panel rounded border border-terminal-border p-4">
+                        <div class="font-mono text-xs text-terminal-accent tracking-wider mb-3">⚡ QUICK COST ESTIMATE</div>
+                        <div id="reno-quick-content" class="grid grid-cols-3 gap-3"></div>
                     </div>
                 </div>
             </div>
