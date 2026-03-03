@@ -190,7 +190,6 @@
             <button onclick="showLocationScout()" class="bg-terminal-accent/10 hover:bg-terminal-accent/20 text-terminal-accent px-3 py-1 rounded text-xs font-mono font-medium transition border border-terminal-accent/30">▶ SCOUT</button>
             <button onclick="showQuickROI()" class="bg-terminal-panel hover:bg-terminal-border text-terminal-dim px-3 py-1 rounded text-xs font-mono transition border border-terminal-border">ROI</button>
             <button onclick="switchTab('mentor')" class="bg-terminal-purple/10 hover:bg-terminal-purple/20 text-terminal-purple px-3 py-1 rounded text-xs font-mono transition border border-terminal-purple/30">MENTOR</button>
-            <button onclick="switchTab('qa')" class="bg-terminal-info/10 hover:bg-terminal-info/20 text-terminal-info px-3 py-1 rounded text-xs font-mono transition border border-terminal-info/30">QA</button>
             <div class="w-7 h-7 bg-terminal-border rounded-full flex items-center justify-center text-xs font-bold text-terminal-accent cursor-pointer" onclick="switchTab('profiler')">U</div>
         </div>
     </header>
@@ -261,8 +260,8 @@
             <div id="stat-profile" class="text-base font-mono font-bold text-terminal-purple kpi-value">—</div>
         </div>
         <div class="data-cell px-2 py-2 text-center border-r-0">
-            <div class="text-[9px] text-terminal-muted uppercase tracking-wider font-medium">Pipeline</div>
-            <div id="stat-pipeline" class="text-base font-mono font-bold text-terminal-green kpi-value">IDLE</div>
+            <div class="text-[9px] text-terminal-muted uppercase tracking-wider font-medium">Health</div>
+            <div id="stat-health" class="text-base font-mono font-bold text-terminal-green kpi-value">OK</div>
         </div>
     </div>
 
@@ -271,12 +270,10 @@
         <button onclick="switchTab('deals')" id="tab-deals" class="px-4 py-2.5 text-xs font-mono font-medium tab-active tracking-wide whitespace-nowrap transition-all duration-200">DEALS</button>
         <button onclick="switchTab('properties')" id="tab-properties" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">PROPERTIES</button>
         <button onclick="switchTab('offers')" id="tab-offers" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">OFFERS</button>
-        <button onclick="switchTab('pipeline')" id="tab-pipeline" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">PIPELINE</button>
         <button onclick="switchTab('profiler')" id="tab-profiler" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">👤 PROFILER</button>
         <button onclick="switchTab('mentor')" id="tab-mentor" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🎓 MENTOR</button>
         <button onclick="switchTab('diligence')" id="tab-diligence" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">DD BOT</button>
         <button onclick="switchTab('negotiate')" id="tab-negotiate" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">NEGOTIATION</button>
-        <button onclick="switchTab('qa')" id="tab-qa" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🔬 QA ENGINE</button>
         <button onclick="switchTab('photos')" id="tab-photos" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">📸 PHOTOS</button>
         <button onclick="switchTab('reno')" id="tab-reno" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🏠 RENO VISION</button>
         <button onclick="switchTab('research')" id="tab-research" class="px-4 py-2.5 text-xs font-mono font-medium text-terminal-muted hover:text-terminal-text tracking-wide whitespace-nowrap transition-all duration-200">🔍 RESEARCH</button>
@@ -354,63 +351,6 @@
         <div id="panel-offers" class="tab-panel hidden">
             <div id="offers-list" class="space-y-2">
                 <div class="text-center py-16 text-terminal-muted font-mono text-sm">NO OFFERS GENERATED</div>
-            </div>
-        </div>
-
-        <!-- ═══ PIPELINE ═══ -->
-        <div id="panel-pipeline" class="tab-panel hidden">
-            <div class="bg-terminal-panel rounded border border-terminal-border p-4 mb-4">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="font-mono text-xs text-terminal-accent tracking-wider">▶ LAUNCH PIPELINE</div>
-                    <button onclick="showLocationScout()" class="bg-terminal-accent/10 hover:bg-terminal-accent/20 text-terminal-accent px-3 py-1 rounded text-[10px] font-mono font-medium transition border border-terminal-accent/30">🗺 LOCATION SCOUT</button>
-                </div>
-                <div class="grid grid-cols-4 gap-3 mb-3">
-                    <div>
-                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">REGIONS</label>
-                        <select id="pipeline-regions" multiple class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full" size="4">
-                            <option value="CBD & Inner City" selected>CBD & Inner City</option>
-                            <option value="Inner North">Inner North</option>
-                            <option value="Inner West">Inner West</option>
-                            <option value="Western Growth">Western Growth</option>
-                            <option value="Northern Growth">Northern Growth</option>
-                            <option value="Inner East">Inner East</option>
-                            <option value="South Eastern">South Eastern</option>
-                            <option value="Bayside & Peninsula">Bayside & Peninsula</option>
-                            <option value="Geelong & Surf Coast">Geelong & Surf Coast</option>
-                            <option value="Bendigo & Goldfields">Bendigo & Goldfields</option>
-                            <option value="Ballarat & Central Highlands">Ballarat</option>
-                            <option value="Gippsland">Gippsland</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">SUBURBS (comma separated)</label>
-                        <input type="text" id="pipeline-suburbs" placeholder="e.g. Bendigo, Epsom, Quarry Hill" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">STRATEGY</label>
-                        <select id="pipeline-strategy" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full">
-                            <option value="BTL">BTL</option><option value="R2SA">R2SA</option><option value="FLIP">FLIP</option>
-                            <option value="BRRR">BRRR</option><option value="HMO">HMO</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">MAX AGENCIES</label>
-                        <input type="number" id="pipeline-agencies" value="10" min="1" max="50" class="bg-terminal-bg border border-terminal-border rounded px-2 py-1 text-xs font-mono text-terminal-text w-full">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-terminal-muted font-mono mb-1">OPTIONS</label>
-                        <div class="space-y-1 mt-0.5">
-                            <label class="flex items-center space-x-1 text-[10px] font-mono"><input type="checkbox" id="pipeline-offers" class="rounded bg-terminal-bg border-terminal-border accent-terminal-accent"><span class="text-terminal-dim">AUTO-OFFERS</span></label>
-                            <label class="flex items-center space-x-1 text-[10px] font-mono"><input type="checkbox" id="pipeline-stacker" checked class="rounded bg-terminal-bg border-terminal-border accent-terminal-accent"><span class="text-terminal-dim">STACKER</span></label>
-                            <label class="flex items-center space-x-1 text-[10px] font-mono"><input type="checkbox" id="pipeline-qa" checked class="rounded bg-terminal-bg border-terminal-border accent-terminal-accent"><span class="text-terminal-dim">QA ENGINE</span></label>
-                        </div>
-                    </div>
-                </div>
-                <button onclick="runPipeline()" id="btn-run-pipeline" class="bg-terminal-accent text-terminal-bg px-6 py-2 rounded font-mono text-xs font-bold tracking-wider hover:bg-terminal-accent/90 transition">▶ EXECUTE PIPELINE</button>
-            </div>
-            <div class="font-mono text-xs text-terminal-muted mb-2 tracking-wider">RECENT RUNS</div>
-            <div id="pipeline-runs" class="space-y-1">
-                <div class="text-center py-8 text-terminal-muted font-mono text-xs">NO PIPELINE RUNS</div>
             </div>
         </div>
 
@@ -563,42 +503,6 @@
             </div>
         </div>
 
-        <!-- ═══ QA ENGINE ═══ -->
-        <div id="panel-qa" class="tab-panel hidden">
-            <div class="grid grid-cols-3 gap-3 mb-3">
-                <div class="bg-terminal-panel rounded border border-terminal-border p-3">
-                    <div class="font-mono text-xs text-terminal-info tracking-wider mb-3">🔬 SYSTEM HEALTH</div>
-                    <div id="qa-health-grid" class="space-y-2">
-                        <div class="text-center py-6 text-terminal-muted font-mono text-[10px]">RUN HEALTH CHECK</div>
-                    </div>
-                    <button onclick="runQAHealthCheck()" class="mt-3 w-full bg-terminal-info/10 hover:bg-terminal-info/20 text-terminal-info px-3 py-1.5 rounded text-[10px] font-mono font-medium transition border border-terminal-info/30">REFRESH HEALTH CHECK</button>
-                </div>
-                <div class="bg-terminal-panel rounded border border-terminal-border p-3">
-                    <div class="font-mono text-xs text-terminal-accent tracking-wider mb-3">📈 PERFORMANCE</div>
-                    <div id="qa-trends" class="space-y-2">
-                        <div class="text-center py-6 text-terminal-muted font-mono text-[10px]">NO DATA YET</div>
-                    </div>
-                </div>
-                <div class="bg-terminal-panel rounded border border-terminal-border p-3">
-                    <div class="font-mono text-xs text-terminal-gold tracking-wider mb-3">⚡ SELF-GOVERNANCE</div>
-                    <div class="text-[10px] text-terminal-muted mb-3">QA monitors all agents, scores quality across 5 dimensions, and auto-generates improved prompts for underperformers.</div>
-                    <div class="space-y-1.5">
-                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Accuracy</span><span class="text-terminal-text">30%</span></div>
-                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Relevance</span><span class="text-terminal-text">20%</span></div>
-                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Completeness</span><span class="text-terminal-text">20%</span></div>
-                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Timeliness</span><span class="text-terminal-text">10%</span></div>
-                        <div class="flex items-center justify-between text-[10px] font-mono"><span class="text-terminal-dim">Actionability</span><span class="text-terminal-text">20%</span></div>
-                    </div>
-                    <button onclick="runFullGovernance()" class="mt-3 w-full bg-terminal-gold/10 hover:bg-terminal-gold/20 text-terminal-gold px-3 py-1.5 rounded text-[10px] font-mono font-medium transition border border-terminal-gold/30">⚡ RUN GOVERNANCE CYCLE</button>
-                </div>
-            </div>
-            <div class="bg-terminal-panel rounded border border-terminal-border p-3">
-                <div class="font-mono text-xs text-terminal-accent tracking-wider mb-2">🧬 EVOLVED SKILLS</div>
-                <div id="qa-skills" class="grid grid-cols-4 gap-2">
-                    <div class="text-center py-4 col-span-full text-terminal-muted font-mono text-[10px]">No evolved skills yet — run governance cycle after pipeline execution</div>
-                </div>
-            </div>
-        </div>
         <!-- ═══ PHOTOS ═══ -->
         <div id="panel-photos" class="tab-panel hidden">
             <div class="grid grid-cols-3 gap-3">
@@ -910,7 +814,7 @@
     <!-- STATUS BAR -->
     <footer class="status-bar border-t border-white/[0.06] px-4 py-1.5 flex items-center justify-between flex-shrink-0">
         <div class="flex items-center space-x-4 text-[10px] font-mono text-terminal-muted">
-            <span>APA v5.1.0</span><span>|</span><span id="status-text">READY</span><span>|</span><span>australianpropertyassociates.com.au</span>
+            <span>APA v5.2.0</span><span>|</span><span id="status-text">READY</span><span>|</span><span>australianpropertyassociates.com.au</span><span>|</span><a href="/admin" class="text-terminal-muted hover:text-terminal-accent transition">⚙ Admin</a>
         </div>
         <div class="flex items-center space-x-4 text-[10px] font-mono text-terminal-muted">
             <span id="db-status" class="text-terminal-green">● SQLite PERSISTED</span><span>|</span>

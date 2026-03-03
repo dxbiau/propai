@@ -129,7 +129,7 @@ function propPlaceholder(type, suburb, size, imageUrl) {
    TAB SWITCHING
    ───────────────────────────────────────────────────────────────── */
 
-const TAB_IDS = ['deals','properties','offers','pipeline','profiler','mentor','diligence','negotiate','qa','photos','reno','research'];
+const TAB_IDS = ['deals','properties','offers','profiler','mentor','diligence','negotiate','photos','reno','research'];
 
 function switchTab(name) {
     TAB_IDS.forEach(t => {
@@ -995,8 +995,8 @@ async function executeLocationScout() {
 
     closeModal('modal-scout');
     showToast(`Scouting ${_scoutScope === 'all' ? 'All Australia' : states.join(', ')}...`, 'info');
-    $('stat-pipeline').textContent = 'SCOUTING';
-    $('stat-pipeline').className = 'text-base font-mono font-bold text-terminal-warn';
+    const pipeEl = $('stat-pipeline');
+    if (pipeEl) { pipeEl.textContent = 'SCOUTING'; pipeEl.className = 'text-base font-mono font-bold text-terminal-warn'; }
 
     try {
         const result = await api('POST', '/properties/scout', {
@@ -1005,13 +1005,11 @@ async function executeLocationScout() {
             max_agencies: 10,
         });
         showToast(`Scout complete: ${result.properties_found} properties found`, 'success');
-        $('stat-pipeline').textContent = 'DONE';
-        $('stat-pipeline').className = 'text-base font-mono font-bold text-terminal-green';
+        if (pipeEl) { pipeEl.textContent = 'DONE'; pipeEl.className = 'text-base font-mono font-bold text-terminal-green'; }
         await loadProperties();
         await loadDeals();
     } catch (e) {
-        $('stat-pipeline').textContent = 'ERROR';
-        $('stat-pipeline').className = 'text-base font-mono font-bold text-terminal-red';
+        if (pipeEl) { pipeEl.textContent = 'ERROR'; pipeEl.className = 'text-base font-mono font-bold text-terminal-red'; }
     }
 }
 
@@ -1023,27 +1021,20 @@ async function triggerScout() {
 
 async function runPipeline() {
     const btn = $('btn-run-pipeline');
-    btn.disabled = true;
-    btn.textContent = '⏳ EXECUTING...';
-    $('stat-pipeline').textContent = 'RUNNING';
-    $('stat-pipeline').className = 'text-base font-mono font-bold text-terminal-warn';
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ EXECUTING...'; }
+    const pEl = $('stat-pipeline');
+    if (pEl) { pEl.textContent = 'RUNNING'; pEl.className = 'text-base font-mono font-bold text-terminal-warn'; }
     showToast('Pipeline executing — Scout → Analyst → Stacker...', 'info');
 
     try {
-        // Step 1: Scout
         await triggerScout();
-        // Step 2: Bulk analyse
         await bulkAnalyze();
-
-        $('stat-pipeline').textContent = 'COMPLETE';
-        $('stat-pipeline').className = 'text-base font-mono font-bold text-terminal-green';
+        if (pEl) { pEl.textContent = 'COMPLETE'; pEl.className = 'text-base font-mono font-bold text-terminal-green'; }
         showToast('Pipeline complete!', 'success');
     } catch (e) {
-        $('stat-pipeline').textContent = 'ERROR';
-        $('stat-pipeline').className = 'text-base font-mono font-bold text-terminal-red';
+        if (pEl) { pEl.textContent = 'ERROR'; pEl.className = 'text-base font-mono font-bold text-terminal-red'; }
     } finally {
-        btn.disabled = false;
-        btn.textContent = '▶ EXECUTE PIPELINE';
+        if (btn) { btn.disabled = false; btn.textContent = '▶ EXECUTE PIPELINE'; }
     }
 }
 
@@ -1454,7 +1445,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         $('ticker-shadow').textContent = shadowCount;
     }
 
-    // 2. QA Health — run initial lightweight check
+    // 2. QA Health — run initial lightweight check (ticker only)
     try {
         const healthData = await api('GET', '/qa/health');
         if (healthData && typeof healthData === 'object') {
@@ -1464,21 +1455,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
                 $('ticker-qa').textContent = avg >= 80 ? 'HEALTHY' : avg >= 50 ? 'FAIR' : 'DEGRADED';
                 $('ticker-qa').className = avg >= 80 ? 'text-terminal-green' : avg >= 50 ? 'text-terminal-warn' : 'text-terminal-red';
-            }
-            // Also populate QA health grid
-            const grid = $('qa-health-grid');
-            if (grid && typeof agents === 'object' && !Array.isArray(agents)) {
-                grid.innerHTML = Object.entries(agents).map(([name, data]) => {
-                    const score = typeof data === 'number' ? data : (data?.score || data?.health || 0);
-                    const color = score >= 80 ? 'bg-terminal-green' : score >= 60 ? 'bg-terminal-warn' : 'bg-terminal-red';
-                    return `<div>
-                        <div class="flex items-center justify-between text-[10px] font-mono mb-1">
-                            <span class="text-terminal-dim">${name}</span>
-                            <span class="text-terminal-bright">${typeof score === 'number' ? score.toFixed(0) : score}</span>
-                        </div>
-                        <div class="health-bar"><div class="health-fill ${color}" style="width: ${typeof score === 'number' ? score : 50}%"></div></div>
-                    </div>`;
-                }).join('');
             }
         }
     } catch (e) {

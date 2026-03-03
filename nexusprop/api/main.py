@@ -46,6 +46,7 @@ from nexusprop.api.routes.research import router as research_router
 from nexusprop.api.routes.suburb_intelligence import router as suburb_intelligence_router
 from nexusprop.api.routes.investor_profiler import router as investor_profiler_router
 from nexusprop.api.routes.reno_vision import router as reno_vision_router
+from nexusprop.api.routes.admin import router as admin_router
 from nexusprop.api.middleware import RequestLoggingMiddleware, RateLimitMiddleware
 
 logger = structlog.get_logger(__name__)
@@ -211,6 +212,7 @@ app.include_router(research_router, prefix="/api/v1/research", tags=["Personal R
 app.include_router(suburb_intelligence_router, prefix="/api/v1/suburb-intelligence", tags=["Suburb Intelligence"])
 app.include_router(investor_profiler_router, prefix="/api/v1/investor-profiler", tags=["Investor Profiler"])
 app.include_router(reno_vision_router, prefix="/api/v1/reno-vision", tags=["AI Reno Vision"])
+app.include_router(admin_router, prefix="/api/v1/admin", tags=["Admin"])
 
 
 # ---------------------------------------------------------------------------
@@ -307,6 +309,12 @@ app.mount("/static", StaticFiles(directory=str(_frontend_dir / "static")), name=
 async def terminal_dashboard():
     """Serve the Bloomberg Terminal-style dashboard."""
     return FileResponse(str(_frontend_dir / "index.html"))
+
+
+@app.get("/admin", include_in_schema=False)
+async def admin_dashboard():
+    """Serve the admin control panel."""
+    return FileResponse(str(_frontend_dir / "admin.html"))
 
 
 @app.get("/landing", include_in_schema=False)

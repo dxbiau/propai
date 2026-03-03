@@ -135,6 +135,7 @@ class Settings(BaseSettings):
     app_debug: bool = True
     app_port: int = 8001
     secret_key: str = "change-me"
+    admin_key: str = "apa-admin-2026"
 
     # --- AI ---
     anthropic_api_key: str = ""
